@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mario vs Luigi</title>
+     <link rel="stylesheet" href="css.css">
+    <script type="text/javascript" charset="utf-8" src="../../script/stats.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../../script/jquery1.10.2.min.js"></script>
+    <style>
+        #vars {
+            position: absolute;
+            top: 0;
+            left: 50px;
+            display: block;
+            z-index: 9;
+            font-size: 12px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="game-over-overlay"></div>
+    <div id="game-over">
+      <h1>GAME OVER</h1>
+      <button id="play-reset">Play Again</button>
+    </div>
+    <div id="game-setup">
+        <h1>Game Setup</h1>
+        <br />
+        <div id="setup1">
+            <h2> How many players? </h2>
+            <button class="button-link button-selected" id="onePlayer">One Player</button>
+            <button class="button-link" id="twoPlayer">Two Player</button>
+        </div>
+        <br />
+        <div id="setup2">
+            <h2> Play Locally or Online? </h2>
+            <button class="button-link button-selected" id="localPlay">Locally</button>
+            <button class="button-link" id="onlinePlay">Online</button>
+        </div>
+        <br />
+        <button class="button-link" id="play">Play</button>
+    </div>
+    <div id="resume">
+        <button class="button-link">Resume</button>
+    </div>
+      <script type="text/javascript" charset="utf-8" src="input.js"></script>
+      <script type="text/javascript" charset="utf-8" src="resources.js"></script>
+      <script type="text/javascript" charset="utf-8" src="sprite.js"></script>
+      <script type="text/javascript" charset="utf-8" src="Mario_vs_Luigi.js"></script>
+      <div id="vars">
+      </div>
+  </body>
+</html>
