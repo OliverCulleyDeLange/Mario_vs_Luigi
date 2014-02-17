@@ -8,7 +8,7 @@
  *  Health Bar | Sheild Bar | Score board
  *  
  *  Phase 1:
- *  Edit game template to be Mario with basic movement and shooting
+ *  Enable shooting
  *  
  *  Phase 2: 
  *  Add Mario Map with scrolling
@@ -57,7 +57,7 @@ function main() {
 
     update(dt);
     // For testing only
-    //displayVars(); // Causes huge lag
+    displayVars(); // Causes huge lag
     render();
 
     lastTime = now;
@@ -66,7 +66,9 @@ function main() {
 };
 
 function init() {
-    terrainPattern = ctx.createPattern(resources.get('img/terrain.png'), 'repeat');    
+    //terrainPattern = ctx.createPattern(resources.get('img/terrain.png'), 'repeat'); 
+    ctx.fillStyle = '#333';
+    terrainPattern = ctx.fillRect(0,0,canvas.width,canvas.height);
     document.getElementById('play-reset').addEventListener('click', function() {
         reset();
     });
@@ -122,7 +124,7 @@ resources.onReady(init);
 function player() {
   this.pos = [0,0]; // x,y position
   this.velocity = [0,0]; //x,y velocitiy
-  this.maxVel = [0.5, 1];
+  this.maxVel = [0.5, 2];
   this.minVel = [-0.5, -1];
   this.direction = 0;
   this.faceDir = 1;
@@ -132,7 +134,6 @@ function player() {
   this.sprite = new Sprite('img/ML.png', [0,0], [16,16], 16, [0]);
   //Weapon/Sheild
   this.lastFire = Date.now();
-  this.gunTimeout = 1000;
   this.shoot = false;
   this.sheildTimeout = 10000;
   this.sheild = false;
@@ -168,21 +169,20 @@ var bullets = [];
 var gameTime = 0;
 var isGameOver;
 var terrainPattern;
-console.log("Game Vars Set");
 
 // Update game objects
 function update(dt) {
     gameTime += dt;
     // Default Variables
     mario.direction = 0;
-    mario.shield = false;
+    mario.sheild = false;
     mario.shoot = false;
-    mario.pickUp = false;
+    mario.pickup = false;
     if(twoPlayer) {
         luigi.direction = 0;
-        luigi.shield = false;
+        luigi.sheild = false;
         luigi.shoot = false;
-        luigi.pickUp = false;
+        luigi.pickup = false;
     }
     // Change player properties based on key press
     handleInput(dt);
@@ -223,12 +223,12 @@ function handleInput(dt) {
     }
     
     if(input.isDown('PERIOD')) {
-        mario.pickup = true;
+        mario.shoot = true;
         //console.log("PERIOD pressed");
     }
     
     if(input.isDown('FSLASH')) {
-        mario.shoot = true;
+        mario.pickup = true;
         //console.log("FSLASH pressed");
     }
     // Luigi
@@ -303,6 +303,19 @@ function updateEntities(dt) {
                 //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 		player.runState = (player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 	}
+        // Is player shooting?
+        player.shoot = true;
+        if(player.shoot && !isGameOver && Date.now() - player.lastFire > 100) {
+        var x = player.pos[0] + player.sprite.size[0] / 2;
+        var y = player.pos[1] + player.sprite.size[1] / 2;
+
+        bullets.push({ pos: [x + player.sprite.size[0] * player.faceDir, y],
+                       dir: player.faceDir,
+                       sprite: new Sprite('img/ML.png', [0,0], [8,4], 0)
+                       //                 (url, pos, size, speed, frames, dir, once)
+                       });
+        player.lastFire = Date.now();
+        }
     } // End for players loop
     
 // Update all the bullets
@@ -311,11 +324,11 @@ function updateEntities(dt) {
         if (bullet.dir === 1) { //Bullet travelling right
             bullet.pos[0] += bulletSpeed * dt;
         }
-        else {
+        else { //Bullets travelling left
             bullet.pos[0] -= bulletSpeed * dt;
         }
         // Remove the bullet if it goes offscreen
-        if(bullet.pos[0] > canvas.width) {
+        if(bullet.pos[0] > canvas.width || bullet.pos[0] < 0) {
             bullets.splice(i, 1);
             i--;
         }
@@ -337,19 +350,21 @@ function boxCollides(pos, size, pos2, size2) {
 
 function checkCollisions() {
     // Keeps players in canvas
-    for(var i = 0; i<players.length; i++) {
-        checkPlayerBounds(players[i]);
+    for(var i = 0; i<players.length; i++) { // For each player
+        checkPlayerBounds(players[i]); // Make them stay in teh Canvas Area
+        // Check for Player -> Map collisions
     }
-    // Checks for bullet -> Player collision
+    
     for(var j=0; j<bullets.length; j++) {
         var pos2 = bullets[j].pos;
         var size2 = bullets[j].sprite.size;
-
+        // Checks for bullet -> Player collision
         if(boxCollides(mario.pos, mario.sprite.size, pos2, size2)) {
             bullets.splice(j, 1); // Splice removes the bullet item from the array
             break;
         }
-    }
+        // Check for Bullet -> Map collisions
+    }    
 }
 
 function checkPlayerBounds(player) {
@@ -364,8 +379,8 @@ function checkPlayerBounds(player) {
     if(player.pos[1] < 0) {
         player.pos[1] = 0;
     }
-    else if(player.pos[1] > canvas.height - player.sprite.size[1]) {
-        player.pos[1] = canvas.height - player.sprite.size[1];
+    else if(player.pos[1] > canvas.height - player.sprite.size[1]-16) {
+        player.pos[1] = canvas.height - player.sprite.size[1]-16;
     }
 }
 
@@ -376,9 +391,7 @@ function render() {
 
     // Render the players if the game isn't over
     if(!isGameOver) {
-        for(i=0; i<players.length; i++) {
-            renderEntity(players[i]);
-        }
+        renderEntities(players);
     }
 
     renderEntities(bullets);
@@ -418,7 +431,7 @@ function reset() {
     if(twoPlayer) luigi.pos = [canvas.width * 0.9, canvas.height / 3];
 };
 
-// Don't run the game when the tab isn't visible
+// Don't run the game when the game window isn't visible
 function resume() {
     running = true;
     lastTime = Date.now();
@@ -438,9 +451,9 @@ function resume() {
 function displayVars() {
     // Function for monitoring vars
     var marioWatchVars = [   "pos",   "velocity",   "maxVel",   "minVel",  "direction" ,   "faceDir",
-        "onGround",   "runState",  "walkCycle",   "sprite.size",   "lastFire",  "gunTimeout",   "shoot",
+        "onGround", "sprite.size",   "lastFire",   "shoot",
         "sheildTimeout",  "sheild",   "pickup", "score"];
-    var globalWatchVars = ["lastTime", "onlinePlay","twoPlayer","playerSpeed","bulletSpeed"];
+    var globalWatchVars = ["onlinePlay","twoPlayer","bullets.length", "canvas.height","canvas.width"];
     
     for(var x=0; x<globalWatchVars.length; x++) {
         var y = globalWatchVars[x];

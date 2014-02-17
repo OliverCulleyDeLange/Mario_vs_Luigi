@@ -46,15 +46,8 @@
                     else {
                         x += frame * this.size[0];
                     }
-                } else {
-                    if(this.dir == 'vertical') {
-                        y += this.size[1];
-                    }
-                    else {
-                        x += this.size[0];
-                    }
                 }
-            }
+            }   
 
             ctx.drawImage(resources.get(this.url), // IMAGE
                           x, y, // Image slice coords
