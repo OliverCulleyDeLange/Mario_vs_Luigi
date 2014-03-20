@@ -7,12 +7,8 @@
  *  Wider than screen maps (Bigger screens at advantage)
  *  Health Bar | Sheild Bar | Score board
  *  
- *  Phase 1:
- *  Enable shooting
- *  
  *  Phase 2: 
  *  Add Mario Map with scrolling
- *  Collision detection with map sprites
  *  
  *  Phase 3:
  *  Second local player addition - Allows two players to play on one machine
@@ -84,6 +80,9 @@ function init() {
             luigi = new player();
             players.push(luigi);
         }
+        for (b=0; b<cubeCoords.length; b++) {
+            cubes[b] = new cube(cubeCoords[b][0], cubeCoords[b][1]);
+        }
 
         lastTime = Date.now();
         main();
@@ -119,7 +118,12 @@ resources.load([
     'img/terrain.png'
 ]);
 resources.onReady(init);
-
+//Cube Constructor
+function cube(x,y) {
+    this.pos = [x,y];
+    this.size = [16, 16];
+    this.sprite = new Sprite('img/terrain.png', [0, 0], [16, 16], [0]);
+}
 // Player Constructor
 function player() {
   this.pos = [0,0]; // x,y position
@@ -163,8 +167,14 @@ var onlinePlay = false;
 var twoPlayer = false;
 var players = [];
 var playerSpeed = 500;
-var bulletSpeed = 500;
+var bulletSpeed = 1000;
 var bullets = [];
+var cubeCoords = [];
+for (a=0; a<20; a++) {
+    cubeCoords[a] = [Math.round(Math.random()*1000),Math.round(Math.random()*1000)] ;
+};
+var cubes = [];
+var visibleCubes = [];
 
 var gameTime = 0;
 var isGameOver;
@@ -184,17 +194,12 @@ function update(dt) {
         luigi.shoot = false;
         luigi.pickup = false;
     }
-    // Keep player inside box
-    // Keeps players in canvas
-    for(var i = 0; i<players.length; i++) { // For each player
-        checkPlayerBounds(players[i]); // Make them stay in teh Canvas Area
-    }
     // Change player properties based on key press
     handleInput(dt);
     // Change entity position based on properties
     updateEntities(dt);
     // Do collision detection
-    checkCollisions();
+    //checkCollisions();
 
 };
 
@@ -240,7 +245,7 @@ function handleInput(dt) {
         //console.log("FSLASH pressed");
     }
     // Luigi
-    if(twoPlayer === true) {
+    if(twoPlayer) {
         if(input.isDown('S')) {
             luigi.velocity[1] = luigi.maxVel[1];
         }
@@ -286,8 +291,30 @@ function updateEntities(dt) {
 		player.velocity[0] *= 0.8;
 		if (Math.abs(player.velocity[0]) < 0.05) player.velocity[0] = 0;
 	}
+        // The below deals with Y axis movement and gravity
+        if (player.onGround) {
+            player.velocity[1] = 0;
+        } else {
+            player.velocity[1] += 0.08;
+        }
+	if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
+	if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
+	if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
+	if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
+        
+        
+        var tmpPosX = player.pos[0] + player.velocity[0] * (playerSpeed * dt);
+        var tmpPosY = player.pos[1] + player.velocity[1] * (playerSpeed * dt);
+        
+        if (!playerCollisions([tmpPosX, tmpPosY], player.sprite.size)) {
             player.pos[0] += player.velocity[0] * (playerSpeed * dt);
             player.pos[1] += player.velocity[1] * (playerSpeed * dt);
+        } else {
+            player.onGround = true;
+        }
+        
+        //Keep player in box
+        checkPlayerBounds(player);
         // The below deals with walk animations
         if (player.onGround) {
 		if (player.velocity[0] == 0) {
@@ -303,20 +330,8 @@ function updateEntities(dt) {
                 //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 		player.runState = (player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 	}
-        
-        // The below deals with Y axis movement and gravity
-        if (player.onGround) {
-            player.velocity[1] = 0;
-        } else {
-            player.velocity[1] += 0.08;
-        }
-	if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
-	if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
-	if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
-	if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
-        
         // Is player shooting?
-        player.shoot = true;
+        //player.shoot = true;
         if(player.shoot && !isGameOver && Date.now() - player.lastFire > 100) {
         var x = player.pos[0] + player.sprite.size[0] / 2;
         var y = player.pos[1] + player.sprite.size[1] / 2;
@@ -345,6 +360,7 @@ function updateEntities(dt) {
             i--;
         }
     }
+    bulletCollisions(); //Checks for any bullet collisions
 }
 
 // Collisions
@@ -360,17 +376,40 @@ function boxCollides(pos, size, pos2, size2) {
                     pos2[0] + size2[0], pos2[1] + size2[1]);
 }
 
-function checkCollisions() {    
+function bulletCollisions() {  
+    // Check bullet collision with walls and players
     for(var j=0; j<bullets.length; j++) {
         var pos2 = bullets[j].pos;
         var size2 = bullets[j].sprite.size;
         // Checks for bullet -> Player collision
         if(boxCollides(mario.pos, mario.sprite.size, pos2, size2)) {
             bullets.splice(j, 1); // Splice removes the bullet item from the array
+            mario.kill();
             break;
         }
+        if (twoPlayer) {
+            if(boxCollides(luigi.pos, luigi.sprite.size, pos2, size2)) {
+                bullets.splice(j, 1); // Splice removes the bullet item from the array
+                mario.kill();
+                break;
+            }
+        }
         // Check for Bullet -> Map collisions
-    }    
+        for (k=0; k<visibleCubes.length; k++) {
+            if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
+                bullets.splice(j,1);
+            }
+        }
+    }
+}
+function playerCollisions(pos2, size2) {  //player values passed through  
+    //Check for Player -> Wall/Map collision
+    for (k=0; k<cubes.length; k++) {
+        if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
+            return true;
+            break;
+        }
+    }
 }
 
 function checkPlayerBounds(player) {
@@ -399,9 +438,11 @@ function render() {
     // Render the players if the game isn't over
     if(!isGameOver) {
         renderEntities(players);
+        renderEntities(bullets);
+        renderEntities(cubes);
     }
 
-    renderEntities(bullets);
+    
 };
 
 function renderEntities(list) {
