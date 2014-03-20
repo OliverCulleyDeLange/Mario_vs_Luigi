@@ -128,7 +128,7 @@ function player() {
   this.minVel = [-0.5, -1];
   this.direction = 0;
   this.faceDir = 1;
-  this.onGround = true;
+  this.onGround = false;
   this.runState = 6;
   this.walkCycle = 0;
   this.sprite = new Sprite('img/ML.png', [0,0], [16,16], 16, [0]);
@@ -184,6 +184,11 @@ function update(dt) {
         luigi.shoot = false;
         luigi.pickup = false;
     }
+    // Keep player inside box
+    // Keeps players in canvas
+    for(var i = 0; i<players.length; i++) { // For each player
+        checkPlayerBounds(players[i]); // Make them stay in teh Canvas Area
+    }
     // Change player properties based on key press
     handleInput(dt);
     // Change entity position based on properties
@@ -196,13 +201,16 @@ function update(dt) {
 function handleInput(dt) {
     // Mario
     if(input.isDown('DOWN')) {
-        mario.velocity[1] = mario.maxVel[1];
+        if (mario.onGround == false) {
+            mario.velocity[1] = mario.maxVel[1];
+        }
         //console.log("DOWN pressed");
     }
 
     if(input.isDown('UP')) {
         if (mario.onGround) {
            mario.velocity[1] = mario.minVel[1];
+           mario.onGround = false;
         }
         //console.log("UP pressed");
     }
@@ -268,7 +276,6 @@ function handleInput(dt) {
 function updateEntities(dt) {
 // Update all the Players
     for (var h=0; h<players.length; h++) {
-        // Game logic here
         var player = players[h];
         // Below deals with X axis movement and velocity increse / decrease
         var velIncX = 0.05;
@@ -279,13 +286,6 @@ function updateEntities(dt) {
 		player.velocity[0] *= 0.8;
 		if (Math.abs(player.velocity[0]) < 0.05) player.velocity[0] = 0;
 	}
-        // The below deals with Y axis movement and gravity
-        player.velocity[1] += 0.08;
-	if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
-	if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
-	if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
-	if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
-//TODO
             player.pos[0] += player.velocity[0] * (playerSpeed * dt);
             player.pos[1] += player.velocity[1] * (playerSpeed * dt);
         // The below deals with walk animations
@@ -303,6 +303,18 @@ function updateEntities(dt) {
                 //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 		player.runState = (player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
 	}
+        
+        // The below deals with Y axis movement and gravity
+        if (player.onGround) {
+            player.velocity[1] = 0;
+        } else {
+            player.velocity[1] += 0.08;
+        }
+	if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
+	if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
+	if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
+	if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
+        
         // Is player shooting?
         player.shoot = true;
         if(player.shoot && !isGameOver && Date.now() - player.lastFire > 100) {
@@ -348,13 +360,7 @@ function boxCollides(pos, size, pos2, size2) {
                     pos2[0] + size2[0], pos2[1] + size2[1]);
 }
 
-function checkCollisions() {
-    // Keeps players in canvas
-    for(var i = 0; i<players.length; i++) { // For each player
-        checkPlayerBounds(players[i]); // Make them stay in teh Canvas Area
-        // Check for Player -> Map collisions
-    }
-    
+function checkCollisions() {    
     for(var j=0; j<bullets.length; j++) {
         var pos2 = bullets[j].pos;
         var size2 = bullets[j].sprite.size;
@@ -379,8 +385,9 @@ function checkPlayerBounds(player) {
     if(player.pos[1] < 0) {
         player.pos[1] = 0;
     }
-    else if(player.pos[1] > canvas.height - player.sprite.size[1]-16) {
-        player.pos[1] = canvas.height - player.sprite.size[1]-16;
+    else if(player.pos[1] > canvas.height - player.sprite.size[1]-50) {
+        player.pos[1] = canvas.height - player.sprite.size[1]-50;
+        player.onGround = true;
     }
 }
 
