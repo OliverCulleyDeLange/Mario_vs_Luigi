@@ -82,6 +82,7 @@ canvas {
 .button-link {
     background: #fff;
     color: #000;
+    padding: 5px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -102,4 +103,13 @@ canvas {
 .button-selected {
     background: green;
     border: solid 2px #000;  
+}
+
+#vars {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    display: block;
+    z-index: 9;
+    font-size: 12px;
 }

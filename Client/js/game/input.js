@@ -4,7 +4,7 @@
     function setKey(event, status) {
         var code = event.keyCode;
         var key;
-
+        //console.log(code);
         switch(code) {
         //Shift (16) - Sheild | |\ (192) - Pick Up Item | Z (90) - Fire weapon
         //, (188)  Sheild | . (190) - Pick up item | / (191) - Fire weapon
@@ -34,7 +34,7 @@
             key = 'S'; break;
         case 16:
             key = 'SHIFT'; break;
-        case 192:
+        case 220:
             key = 'BSLASH'; break;
         case 90:
             key = 'Z'; break;

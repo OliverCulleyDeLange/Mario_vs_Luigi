@@ -1,4 +1,4 @@
-/* 
+/*
  *  M_vs_L
  *  Two player 2D Mario influenced shooter
  *  Basic arrow key interaction (Up (Jump), Left, Right, Down (Drop))
@@ -7,12 +7,8 @@
  *  Wider than screen maps (Bigger screens at advantage)
  *  Health Bar | Sheild Bar | Score board
  *  
- *  Phase 1:
- *  Enable shooting
- *  
  *  Phase 2: 
  *  Add Mario Map with scrolling
- *  Collision detection with map sprites
  *  
  *  Phase 3:
  *  Second local player addition - Allows two players to play on one machine
@@ -24,6 +20,25 @@
  *  Addition of two player online - Node.js?
  *  
  */
+// Game state
+var running = false;
+var onlinePlay = false;
+var twoPlayer = false;
+var socket = null;
+var players = [];
+var playerSpeed = 500;
+var bulletSpeed = 275;
+var bullets = [];
+var cubeCoords = [];
+for (a=0; a<20; a++) {
+    cubeCoords[a] = [Math.round(innerWidth*Math.random()),Math.round(innerHeight*Math.random())] ;
+};
+var cubes = [];
+var visibleCubes = [];
+
+var gameTime = 0;
+var isGameOver;
+var terrainPattern;
 
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
@@ -53,16 +68,15 @@ function main() {
     }
         
     var now = Date.now();
-    var dt = (now - lastTime) / 1000.0;
+    var dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
 
     update(dt);
-    // For testing only
-    displayVars(); // Causes huge lag
+
     render();
 
     lastTime = now;
     requestAnimFrame(main);
-    console.log("Game Frame");
+    //console.log("Game Frame");
 };
 
 function init() {
@@ -78,16 +92,25 @@ function init() {
     document.getElementById('play').addEventListener('click', function() {
         running = true;
         document.getElementById('game-setup').style.display = "none";
-        mario = new player();
+        mario = new player([innerWidth*0.1,innerHeight*0.25]);
+        // Make players
         players.push(mario);
         if(twoPlayer) {
-            luigi = new player();
+            luigi = new player([innerWidth*0.9,innerHeight*0.25]);
             players.push(luigi);
         }
-
+        for (b=0; b<cubeCoords.length; b++) {
+            cubes[b] = new cube(cubeCoords[b][0], cubeCoords[b][1]);
+        }
         lastTime = Date.now();
-        main();
-    });
+        // If 'Online' player, setup networking
+        if (onlinePlay) {
+            //connect('ws://' + window.location.host + '/Mario_vs_Luigi/');
+            connect('ws://localhost:4444');
+        } else {
+            main();
+        }
+    })
     document.getElementById('onePlayer').addEventListener('click', function() {
         // Actions for clicking onePlayer
         document.getElementById('onePlayer').className += ' button-selected';
@@ -112,17 +135,78 @@ function init() {
         document.getElementById('localPlay').className = 'button-link';
         onlinePlay = true;
     });
-}
-        
+};
+
+function connect(host) {
+      if ('WebSocket' in window) {
+        socket = new WebSocket(host);
+      } else if ('MozWebSocket' in window) {
+        socket = new MozWebSocket(host);
+      } else {
+        Console.log('Error: WebSocket is not supported by this browser.');
+        return;
+      }
+
+      socket.onopen = function () {
+          // Socket open.. start the game loop.
+          console.log('Info: WebSocket connection opened.');
+          setInterval(function() {
+              // Prevent server read timeout.
+              Game.socket.send('ping');
+          }, 5000);
+      };
+
+      socket.onclose = function () {
+          console.log('Info: WebSocket closed.');
+          init();
+      };
+
+      socket.onmessage = function (message) {
+          // _Potential_ security hole, consider using json lib to parse data in production.
+          var packet = eval('(' + message.data + ')');
+          switch (packet.type) {
+              case 'update':
+                  for (var i = 0; i < packet.data.length; i++) {
+                      Game.updateSnake(packet.data[i].id, packet.data[i].body);
+                  }
+                  break;
+              case 'join':
+                  for (var j = 0; j < packet.data.length; j++) {
+                      Game.addSnake(packet.data[j].id, packet.data[j].color);
+                  }
+                  break;
+              case 'leave':
+                  Game.removeSnake(packet.id);
+                  break;
+              case 'dead':
+                  console.log('Info: Your snake is dead, bad luck!');
+                  Game.direction = 'none';
+                  break;
+              case 'kill':
+                  console.log('Info: Head shot!');
+                  break;
+              default:
+                  console.log("Packet is:" + packet);
+                  break;
+          }
+      };
+};
+
 resources.load([
     'img/ML.png',
     'img/terrain.png'
 ]);
 resources.onReady(init);
-
+//Cube Constructor
+function cube(x,y) {
+    this.pos = [x,y];
+    this.size = [16, 16];
+    this.sprite = new Sprite('img/terrain.png', [0, 0], [16, 16], [0]);
+};
 // Player Constructor
-function player() {
-  this.pos = [0,0]; // x,y position
+function player(pos) {
+  this.pos = pos; // x,y position
+  this.startPos = [pos[0],pos[1]];
   this.velocity = [0,0]; //x,y velocitiy
   this.maxVel = [0.5, 2];
   this.minVel = [-0.5, -1];
@@ -140,6 +224,7 @@ function player() {
   this.pickup = false;
   // Scoring
   this.score = 0;
+  this.lives = 5;
   // Run States
   this.runStates = {
     JUMPLEFT : 0,
@@ -155,20 +240,24 @@ function player() {
     SKIDRIGHT : 10,
     JUMPRIGHT : 11
   };
+  this.kill = (function() {
+    console.log("Killed");
+    this.lives--;
+    this.reset();
+  });
+
+  this.reset = (function() {
+    this.pos = [this.startPos[0],this.startPos[1]] // x,y position
+    this.velocity = [0,0]; //x,y velocitiy
+    this.direction = 0;
+    this.faceDir = 1;
+    this.onGround = false;
+    this.shoot = false;
+    this.sheildTimeout = 10000;
+    this.sheild = false;
+    this.pickup = false;
+  });
 };
-
-// Game state
-var running = false;
-var onlinePlay = false;
-var twoPlayer = false;
-var players = [];
-var playerSpeed = 500;
-var bulletSpeed = 500;
-var bullets = [];
-
-var gameTime = 0;
-var isGameOver;
-var terrainPattern;
 
 // Update game objects
 function update(dt) {
@@ -184,140 +273,148 @@ function update(dt) {
         luigi.shoot = false;
         luigi.pickup = false;
     }
-    // Keep player inside box
-    // Keeps players in canvas
-    for(var i = 0; i<players.length; i++) { // For each player
-        checkPlayerBounds(players[i]); // Make them stay in teh Canvas Area
-    }
     // Change player properties based on key press
     handleInput(dt);
     // Change entity position based on properties
     updateEntities(dt);
     // Do collision detection
-    checkCollisions();
+    //checkCollisions();
 
 };
 
 function handleInput(dt) {
-    // Mario
-    if(input.isDown('DOWN')) {
+    if(input.isDown('S')) {
         if (mario.onGround == false) {
-            mario.velocity[1] = mario.maxVel[1];
+                mario.velocity[1] = mario.maxVel[1];
         }
-        //console.log("DOWN pressed");
     }
 
-    if(input.isDown('UP')) {
+    if(input.isDown('W')) {
         if (mario.onGround) {
            mario.velocity[1] = mario.minVel[1];
            mario.onGround = false;
         }
-        //console.log("UP pressed");
     }
 
-    if(input.isDown('LEFT')) {
+    if(input.isDown('A')) {
         mario.direction = -1;
-        //console.log("LEFT pressed");
     }
 
-    if(input.isDown('RIGHT')) {
+    if(input.isDown('D')) {
         mario.direction = 1;
-        //console.log("RIGHT pressed");
     }
-    
-    if(input.isDown('COMMA')) {
+
+    if(input.isDown('SHIFT')) {
         mario.sheild = true;
-        //console.log("COMMA pressed");
     }
-    
-    if(input.isDown('PERIOD')) {
+
+    if(input.isDown('BSLASH')) {
         mario.shoot = true;
-        //console.log("PERIOD pressed");
     }
-    
-    if(input.isDown('FSLASH')) {
+
+    if(input.isDown('Z')) {
         mario.pickup = true;
-        //console.log("FSLASH pressed");
     }
-    // Luigi
-    if(twoPlayer === true) {
-        if(input.isDown('S')) {
-            luigi.velocity[1] = luigi.maxVel[1];
-        }
-
-        if(input.isDown('W')) {
-            if (luigi.onGround) {
-               luigi.velocity[1] = luigi.minVel[1];
+    if(twoPlayer) {
+            if(input.isDown('DOWN')) {
+                if (luigi.onGround == false) {
+                    luigi.velocity[1] = luigi.maxVel[1];
+                }
+                //console.log("DOWN pressed");
             }
-        }
 
-        if(input.isDown('A')) {
-            luigi.direction[0] = luigi.minVel[0];
-        }
+            if(input.isDown('UP')) {
+                if (luigi.onGround) {
+                   luigi.velocity[1] = luigi.minVel[1];
+                   luigi.onGround = false;
+                }
+                //console.log("UP pressed");
+            }
 
-        if(input.isDown('D')) {
-            luigi.direction[0] = luigi.maxVel[0];
-        }
+            if(input.isDown('LEFT')) {
+                luigi.direction = -1;
+                //console.log("LEFT pressed");
+            }
 
-        if(input.isDown('SHIFT')) {
-            luigi.sheild = true;
-        }
+            if(input.isDown('RIGHT')) {
+                luigi.direction = 1;
+                //console.log("RIGHT pressed");
+            }
 
-        if(input.isDown('BSLASH')) {
-            luigi.pickup = true;
-        }
+            if(input.isDown('COMMA')) {
+                luigi.sheild = true;
+                //console.log("COMMA pressed");
+            }
 
-        if(input.isDown('Z')) {
-            luigi.shoot = true;
-        }
+            if(input.isDown('PERIOD')) {
+                luigi.shoot = true;
+                //console.log("PERIOD pressed");
+            }
+
+            if(input.isDown('FSLASH')) {
+                luigi.pickup = true;
+                //console.log("FSLASH pressed");
+            }
     }
-}
+};
 
-function updateEntities(dt) {
+function updateEntities(dt) { // dt is number of seconds passed - multiply speed of object by dt to get pixel movement
+
 // Update all the Players
     for (var h=0; h<players.length; h++) {
         var player = players[h];
-        // Below deals with X axis movement and velocity increse / decrease
+        // Below deals with X axis movement and velocity increase / decrease
         var velIncX = 0.05;
-	if (player.direction) {
-		player.faceDir = player.direction;
-		player.velocity[0] += velIncX * player.direction;
-	} else {
-		player.velocity[0] *= 0.8;
-		if (Math.abs(player.velocity[0]) < 0.05) player.velocity[0] = 0;
-	}
-            player.pos[0] += player.velocity[0] * (playerSpeed * dt);
-            player.pos[1] += player.velocity[1] * (playerSpeed * dt);
-        // The below deals with walk animations
-        if (player.onGround) {
-		if (player.velocity[0] == 0) {
-			player.walkCycle = 0;
-			player.runState = (player.faceDir < 0 ? player.runStates.STANDLEFT : player.runStates.STANDRIGHT);
-		} else {
-			player.walkCycle += 0.5;
-			if (player.walkCycle >= 3) player.walkCycle = 0;
-			player.runState =	(player.velocity[0] < 0 ? player.runStates.RUNLEFT1 : player.runStates.RUNRIGHT1) + (player.walkCycle>>0);
-		}
-	} else {
-		player.walkCycle = 0;
-                //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
-		player.runState = (player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
-	}
-        
+        if (player.direction) {
+            player.faceDir = player.direction;
+            player.velocity[0] += velIncX * player.direction;
+        } else {
+            player.velocity[0] *= 0.8;
+            if (Math.abs(player.velocity[0]) < 0.05) player.velocity[0] = 0;
+        }
         // The below deals with Y axis movement and gravity
         if (player.onGround) {
             player.velocity[1] = 0;
         } else {
             player.velocity[1] += 0.08;
         }
-	if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
-	if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
-	if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
-	if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
+        if (player.velocity[0] > player.maxVel[0]) player.velocity[0] = player.maxVel[0];
+        if (player.velocity[0] < player.minVel[0]) player.velocity[0] = player.minVel[0];
+        if (player.velocity[1] > player.maxVel[1]) player.velocity[1] = player.maxVel[1];
+        if (player.velocity[1] < player.minVel[1]) player.velocity[1] = player.minVel[1];
         
+        
+        var tmpPosX = player.pos[0] + player.velocity[0] * (playerSpeed * dt);
+        var tmpPosY = player.pos[1] + player.velocity[1] * (playerSpeed * dt);
+        
+        if (!playerCollisions([tmpPosX, tmpPosY], player.sprite.size)) {
+            player.pos[0] += player.velocity[0] * (playerSpeed * dt);
+            player.pos[1] += player.velocity[1] * (playerSpeed * dt);
+        } else {
+            //TODO Player is not colliding but not necessarily on ground
+            player.onGround = true;
+        }
+        
+        //Keep player in box
+        checkPlayerBounds(player);
+        // The below deals with walk animations
+        if (player.onGround) {
+            if (player.velocity[0] == 0) {
+                player.walkCycle = 0;
+                player.runState = (player.faceDir < 0 ? player.runStates.STANDLEFT : player.runStates.STANDRIGHT);
+            } else {
+                player.walkCycle += 0.5;
+                if (player.walkCycle >= 3) player.walkCycle = 0;
+                player.runState =	(player.velocity[0] < 0 ? player.runStates.RUNLEFT1 : player.runStates.RUNRIGHT1) + (player.walkCycle>>0);
+            }
+        } else {
+            player.walkCycle = 0;
+                    //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
+            player.runState = (player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
+        }
         // Is player shooting?
-        player.shoot = true;
-        if(player.shoot && !isGameOver && Date.now() - player.lastFire > 100) {
+        //player.shoot = true;
+        if(player.shoot && !isGameOver && Date.now() - player.lastFire > 500) {
         var x = player.pos[0] + player.sprite.size[0] / 2;
         var y = player.pos[1] + player.sprite.size[1] / 2;
 
@@ -345,33 +442,57 @@ function updateEntities(dt) {
             i--;
         }
     }
-}
+    bulletCollisions(); //Checks for any bullet collisions
+};
 
 // Collisions
 function collides(x, y, r, b, x2, y2, r2, b2) {
     return !(r <= x2 || x > r2 ||
              b <= y2 || y > b2);
-}
+};
 
 function boxCollides(pos, size, pos2, size2) {
     return collides(pos[0], pos[1],
                     pos[0] + size[0], pos[1] + size[1],
                     pos2[0], pos2[1],
                     pos2[0] + size2[0], pos2[1] + size2[1]);
-}
+};
 
-function checkCollisions() {    
+function bulletCollisions() {  
+    // Check bullet collision with walls and players
     for(var j=0; j<bullets.length; j++) {
         var pos2 = bullets[j].pos;
         var size2 = bullets[j].sprite.size;
         // Checks for bullet -> Player collision
         if(boxCollides(mario.pos, mario.sprite.size, pos2, size2)) {
             bullets.splice(j, 1); // Splice removes the bullet item from the array
+            mario.kill();
             break;
         }
+        if (twoPlayer) {
+            if(boxCollides(luigi.pos, luigi.sprite.size, pos2, size2)) {
+                bullets.splice(j, 1); // Splice removes the bullet item from the array
+                luigi.kill();
+                break;
+            }
+        }
         // Check for Bullet -> Map collisions
-    }    
-}
+        for (k=0; k<visibleCubes.length; k++) {
+            if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
+                bullets.splice(j,1);
+            }
+        }
+    }
+};
+function playerCollisions(pos2, size2) {  //player values passed through  
+    //Check for Player -> Wall/Map collision
+    for (k=0; k<cubes.length; k++) {
+        if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
+            return true;
+            break;
+        }
+    }
+};
 
 function checkPlayerBounds(player) {
     // Check bounds
@@ -389,7 +510,7 @@ function checkPlayerBounds(player) {
         player.pos[1] = canvas.height - player.sprite.size[1]-50;
         player.onGround = true;
     }
-}
+};
 
 // Draw everything
 function render() {
@@ -399,30 +520,32 @@ function render() {
     // Render the players if the game isn't over
     if(!isGameOver) {
         renderEntities(players);
+        renderEntities(bullets);
+        renderEntities(cubes);
     }
 
-    renderEntities(bullets);
+    
 };
 
 function renderEntities(list) {
     for(var i=0; i<list.length; i++) {
         renderEntity(list[i]);
     }
-}
+};
 
 function renderEntity(entity) {
     ctx.save();
     ctx.translate(entity.pos[0], entity.pos[1]);
     entity.sprite.render(ctx, entity.runState);
     ctx.restore();
-}
+};
 
 // Game over
 function gameOver() {
     document.getElementById('game-over').style.display = 'block';
     document.getElementById('game-over-overlay').style.display = 'block';
     isGameOver = true;
-}
+};
 
 // Reset game to original state
 function reset() {
@@ -445,7 +568,7 @@ function resume() {
     main();
     document.getElementById('resume').style.display = "none";
     document.getElementById('game-over-overlay').style.display = "none";
-}
+};
 
 //window.addEventListener('blur', function() {
 //    if(document.getElementById('game-setup').style.display == "none") {
@@ -454,26 +577,3 @@ function resume() {
 //        document.getElementById('game-over-overlay').style.display = "block";
 //    }
 //});
-
-function displayVars() {
-    // Function for monitoring vars
-    var marioWatchVars = [   "pos",   "velocity",   "maxVel",   "minVel",  "direction" ,   "faceDir",
-        "onGround", "sprite.size",   "lastFire",   "shoot",
-        "sheildTimeout",  "sheild",   "pickup", "score"];
-    var globalWatchVars = ["onlinePlay","twoPlayer","bullets.length", "canvas.height","canvas.width"];
-    
-    for(var x=0; x<globalWatchVars.length; x++) {
-        var y = globalWatchVars[x];
-        var p =  document.createElement("p");
-        p.setAttribute("id", y);
-        document.getElementById('vars').appendChild(p);
-        document.getElementById(y).innerHTML = y + ": " + eval(y);
-    }
-    for(var x=0; x<marioWatchVars.length; x++) {
-        var y = marioWatchVars[x];
-        var p =  document.createElement("p");
-        p.setAttribute("id", y);
-        document.getElementById('vars').appendChild(p);
-        document.getElementById(y).innerHTML = y + ": " + eval("mario." + y);
-    }
-}
