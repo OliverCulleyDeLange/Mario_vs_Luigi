@@ -105,6 +105,11 @@ canvas {
     border: solid 2px #000;  
 }
 
+.button-disabled {
+    background: grey;
+    border: solid 2px #ff0000;
+}
+
 #vars {
     position: absolute;
     top: 0;

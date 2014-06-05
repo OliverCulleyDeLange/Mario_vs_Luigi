@@ -65,3 +65,63 @@
         }
     };
 })();
+function handleInput(dt) {
+    switch (true){
+        case input.isDown('S'):
+            if (mario.onGround === false) {
+                mario.velocity[1] = mario.maxVel[1];
+            }
+            break;
+        case input.isDown('W'):
+            if (mario.onGround) {
+                mario.velocity[1] = mario.minVel[1];
+                mario.onGround = false;
+            }
+            break;
+        case input.isDown('A'):
+            mario.direction = -1;
+            break;
+        case input.isDown('D'):
+            mario.direction = 1;
+            break;
+        case input.isDown('SHIFT'):
+            mario.sheild = true;
+            break;
+        case input.isDown('BSLASH'):
+            mario.shoot = true;
+            break;
+        case input.isDown('Z'):
+            mario.pickup = true;
+            break;
+    }
+    if(twoPlayer) {
+        switch (true){
+            case input.isDown('DOWN'):
+                if (luigi.onGround === false) {
+                    luigi.velocity[1] = luigi.maxVel[1];
+                }
+                break;
+            case input.isDown('UP'):
+                if (luigi.onGround) {
+                    luigi.velocity[1] = luigi.minVel[1];
+                    luigi.onGround = false;
+                }
+                break;
+            case input.isDown('LEFT'):
+                luigi.direction = -1;
+                break;
+            case input.isDown('RIGHT'):
+                luigi.direction = 1;
+                break;
+            case input.isDown('COMMA'):
+                luigi.sheild = true;
+                break;
+            case input.isDown('PERIOD'):
+                luigi.shoot = true;
+                break;
+            case input.isDown('FSLASH'):
+                luigi.pickup = true;
+                break;
+        }
+    }
+};

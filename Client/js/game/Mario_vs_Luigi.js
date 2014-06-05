@@ -29,12 +29,6 @@ var players = [];
 var playerSpeed = 500;
 var bulletSpeed = 275;
 var bullets = [];
-var cubeCoords = [];
-for (a=0; a<20; a++) {
-    cubeCoords[a] = [Math.round(innerWidth*Math.random()),Math.round(innerHeight*Math.random())] ;
-};
-var cubes = [];
-var visibleCubes = [];
 
 var gameTime = 0;
 var isGameOver;
@@ -80,15 +74,17 @@ function main() {
 };
 
 function init() {
-    //terrainPattern = ctx.createPattern(resources.get('img/terrain.png'), 'repeat'); 
     ctx.fillStyle = '#333';
     terrainPattern = ctx.fillRect(0,0,canvas.width,canvas.height);
+
     document.getElementById('play-reset').addEventListener('click', function() {
         reset();
     });
+
     document.getElementById('resume').addEventListener('click', function() {
         resume();
     });
+
     document.getElementById('play').addEventListener('click', function() {
         running = true;
         document.getElementById('game-setup').style.display = "none";
@@ -99,9 +95,7 @@ function init() {
             luigi = new player([innerWidth*0.9,innerHeight*0.25]);
             players.push(luigi);
         }
-        for (b=0; b<cubeCoords.length; b++) {
-            cubes[b] = new cube(cubeCoords[b][0], cubeCoords[b][1]);
-        }
+        drawMap();
         lastTime = Date.now();
         // If 'Online' player, setup networking
         if (onlinePlay) {
@@ -110,25 +104,29 @@ function init() {
         } else {
             main();
         }
-    })
+    });
+
     document.getElementById('onePlayer').addEventListener('click', function() {
         // Actions for clicking onePlayer
         document.getElementById('onePlayer').className += ' button-selected';
         document.getElementById('twoPlayer').className = 'button-link';
         twoPlayer = false;
     });
+
     document.getElementById('twoPlayer').addEventListener('click', function() {
         // Actions for clicking twoPlayer
         document.getElementById('twoPlayer').className += ' button-selected';
         document.getElementById('onePlayer').className = 'button-link';
         twoPlayer = true;
     });
+
     document.getElementById('localPlay').addEventListener('click', function() {
         // Actions for clicking localPlay
         document.getElementById('localPlay').className += ' button-selected';
-        document.getElementById('onlinePlay').className = 'button-link';
+//        document.getElementById('onlinePlay').className = 'button-link';
         onlinePlay = false;
     });
+
     document.getElementById('onlinePlay').addEventListener('click', function() {
         // Actions for clicking onlinePlay
         document.getElementById('onlinePlay').className += ' button-selected';
@@ -137,127 +135,11 @@ function init() {
     });
 };
 
-function connect(host) {
-      if ('WebSocket' in window) {
-        socket = new WebSocket(host);
-      } else if ('MozWebSocket' in window) {
-        socket = new MozWebSocket(host);
-      } else {
-        Console.log('Error: WebSocket is not supported by this browser.');
-        return;
-      }
-
-      socket.onopen = function () {
-          // Socket open.. start the game loop.
-          console.log('Info: WebSocket connection opened.');
-          setInterval(function() {
-              // Prevent server read timeout.
-              Game.socket.send('ping');
-          }, 5000);
-      };
-
-      socket.onclose = function () {
-          console.log('Info: WebSocket closed.');
-          init();
-      };
-
-      socket.onmessage = function (message) {
-          // _Potential_ security hole, consider using json lib to parse data in production.
-          var packet = eval('(' + message.data + ')');
-          switch (packet.type) {
-              case 'update':
-                  for (var i = 0; i < packet.data.length; i++) {
-                      Game.updateSnake(packet.data[i].id, packet.data[i].body);
-                  }
-                  break;
-              case 'join':
-                  for (var j = 0; j < packet.data.length; j++) {
-                      Game.addSnake(packet.data[j].id, packet.data[j].color);
-                  }
-                  break;
-              case 'leave':
-                  Game.removeSnake(packet.id);
-                  break;
-              case 'dead':
-                  console.log('Info: Your snake is dead, bad luck!');
-                  Game.direction = 'none';
-                  break;
-              case 'kill':
-                  console.log('Info: Head shot!');
-                  break;
-              default:
-                  console.log("Packet is:" + packet);
-                  break;
-          }
-      };
-};
-
 resources.load([
     'img/ML.png',
     'img/terrain.png'
 ]);
 resources.onReady(init);
-//Cube Constructor
-function cube(x,y) {
-    this.pos = [x,y];
-    this.size = [16, 16];
-    this.sprite = new Sprite('img/terrain.png', [0, 0], [16, 16], [0]);
-};
-// Player Constructor
-function player(pos) {
-  this.pos = pos; // x,y position
-  this.startPos = [pos[0],pos[1]];
-  this.velocity = [0,0]; //x,y velocitiy
-  this.maxVel = [0.5, 2];
-  this.minVel = [-0.5, -1];
-  this.direction = 0;
-  this.faceDir = 1;
-  this.onGround = false;
-  this.runState = 6;
-  this.walkCycle = 0;
-  this.sprite = new Sprite('img/ML.png', [0,0], [16,16], 16, [0]);
-  //Weapon/Sheild
-  this.lastFire = Date.now();
-  this.shoot = false;
-  this.sheildTimeout = 10000;
-  this.sheild = false;
-  this.pickup = false;
-  // Scoring
-  this.score = 0;
-  this.lives = 5;
-  // Run States
-  this.runStates = {
-    JUMPLEFT : 0,
-    RUNLEFT1 : 1,
-    RUNLEFT2 : 2,
-    RUNLEFT3 : 3,
-    SKIDLEFT : 4,
-    STANDLEFT : 5,
-    STANDRIGHT : 6,
-    RUNRIGHT1 : 7,
-    RUNRIGHT2 : 8,
-    RUNRIGHT3 : 9,
-    SKIDRIGHT : 10,
-    JUMPRIGHT : 11
-  };
-  this.kill = (function() {
-    console.log("Killed");
-    this.lives--;
-    this.reset();
-  });
-
-  this.reset = (function() {
-    this.pos = [this.startPos[0],this.startPos[1]] // x,y position
-    this.velocity = [0,0]; //x,y velocitiy
-    this.direction = 0;
-    this.faceDir = 1;
-    this.onGround = false;
-    this.shoot = false;
-    this.sheildTimeout = 10000;
-    this.sheild = false;
-    this.pickup = false;
-  });
-};
 
 // Update game objects
 function update(dt) {
@@ -280,82 +162,6 @@ function update(dt) {
     // Do collision detection
     //checkCollisions();
 
-};
-
-function handleInput(dt) {
-    if(input.isDown('S')) {
-        if (mario.onGround == false) {
-                mario.velocity[1] = mario.maxVel[1];
-        }
-    }
-
-    if(input.isDown('W')) {
-        if (mario.onGround) {
-           mario.velocity[1] = mario.minVel[1];
-           mario.onGround = false;
-        }
-    }
-
-    if(input.isDown('A')) {
-        mario.direction = -1;
-    }
-
-    if(input.isDown('D')) {
-        mario.direction = 1;
-    }
-
-    if(input.isDown('SHIFT')) {
-        mario.sheild = true;
-    }
-
-    if(input.isDown('BSLASH')) {
-        mario.shoot = true;
-    }
-
-    if(input.isDown('Z')) {
-        mario.pickup = true;
-    }
-    if(twoPlayer) {
-            if(input.isDown('DOWN')) {
-                if (luigi.onGround == false) {
-                    luigi.velocity[1] = luigi.maxVel[1];
-                }
-                //console.log("DOWN pressed");
-            }
-
-            if(input.isDown('UP')) {
-                if (luigi.onGround) {
-                   luigi.velocity[1] = luigi.minVel[1];
-                   luigi.onGround = false;
-                }
-                //console.log("UP pressed");
-            }
-
-            if(input.isDown('LEFT')) {
-                luigi.direction = -1;
-                //console.log("LEFT pressed");
-            }
-
-            if(input.isDown('RIGHT')) {
-                luigi.direction = 1;
-                //console.log("RIGHT pressed");
-            }
-
-            if(input.isDown('COMMA')) {
-                luigi.sheild = true;
-                //console.log("COMMA pressed");
-            }
-
-            if(input.isDown('PERIOD')) {
-                luigi.shoot = true;
-                //console.log("PERIOD pressed");
-            }
-
-            if(input.isDown('FSLASH')) {
-                luigi.pickup = true;
-                //console.log("FSLASH pressed");
-            }
-    }
 };
 
 function updateEntities(dt) { // dt is number of seconds passed - multiply speed of object by dt to get pixel movement
@@ -399,7 +205,7 @@ function updateEntities(dt) { // dt is number of seconds passed - multiply speed
         checkPlayerBounds(player);
         // The below deals with walk animations
         if (player.onGround) {
-            if (player.velocity[0] == 0) {
+            if (player.velocity[0] === 0) {
                 player.walkCycle = 0;
                 player.runState = (player.faceDir < 0 ? player.runStates.STANDLEFT : player.runStates.STANDRIGHT);
             } else {
@@ -445,73 +251,6 @@ function updateEntities(dt) { // dt is number of seconds passed - multiply speed
     bulletCollisions(); //Checks for any bullet collisions
 };
 
-// Collisions
-function collides(x, y, r, b, x2, y2, r2, b2) {
-    return !(r <= x2 || x > r2 ||
-             b <= y2 || y > b2);
-};
-
-function boxCollides(pos, size, pos2, size2) {
-    return collides(pos[0], pos[1],
-                    pos[0] + size[0], pos[1] + size[1],
-                    pos2[0], pos2[1],
-                    pos2[0] + size2[0], pos2[1] + size2[1]);
-};
-
-function bulletCollisions() {  
-    // Check bullet collision with walls and players
-    for(var j=0; j<bullets.length; j++) {
-        var pos2 = bullets[j].pos;
-        var size2 = bullets[j].sprite.size;
-        // Checks for bullet -> Player collision
-        if(boxCollides(mario.pos, mario.sprite.size, pos2, size2)) {
-            bullets.splice(j, 1); // Splice removes the bullet item from the array
-            mario.kill();
-            break;
-        }
-        if (twoPlayer) {
-            if(boxCollides(luigi.pos, luigi.sprite.size, pos2, size2)) {
-                bullets.splice(j, 1); // Splice removes the bullet item from the array
-                luigi.kill();
-                break;
-            }
-        }
-        // Check for Bullet -> Map collisions
-        for (k=0; k<visibleCubes.length; k++) {
-            if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
-                bullets.splice(j,1);
-            }
-        }
-    }
-};
-function playerCollisions(pos2, size2) {  //player values passed through  
-    //Check for Player -> Wall/Map collision
-    for (k=0; k<cubes.length; k++) {
-        if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
-            return true;
-            break;
-        }
-    }
-};
-
-function checkPlayerBounds(player) {
-    // Check bounds
-    if(player.pos[0] < 0) {
-        player.pos[0] = 0;
-    }
-    else if(player.pos[0] > canvas.width - player.sprite.size[0]) {
-        player.pos[0] = canvas.width - player.sprite.size[0];
-    }
-
-    if(player.pos[1] < 0) {
-        player.pos[1] = 0;
-    }
-    else if(player.pos[1] > canvas.height - player.sprite.size[1]-50) {
-        player.pos[1] = canvas.height - player.sprite.size[1]-50;
-        player.onGround = true;
-    }
-};
-
 // Draw everything
 function render() {
     ctx.fillStyle = terrainPattern;
@@ -539,41 +278,3 @@ function renderEntity(entity) {
     entity.sprite.render(ctx, entity.runState);
     ctx.restore();
 };
-
-// Game over
-function gameOver() {
-    document.getElementById('game-over').style.display = 'block';
-    document.getElementById('game-over-overlay').style.display = 'block';
-    isGameOver = true;
-};
-
-// Reset game to original state
-function reset() {
-    document.getElementById('game-over').style.display = 'none';
-    document.getElementById('game-over-overlay').style.display = 'none';
-    //document.getElementById('game-setup').style.display = 'none';
-    isGameOver = false;
-    gameTime = 0;
-
-    bullets = [];
-
-    mario.pos = [canvas.width * 0.1, canvas.height / 3];
-    if(twoPlayer) luigi.pos = [canvas.width * 0.9, canvas.height / 3];
-};
-
-// Don't run the game when the game window isn't visible
-function resume() {
-    running = true;
-    lastTime = Date.now();
-    main();
-    document.getElementById('resume').style.display = "none";
-    document.getElementById('game-over-overlay').style.display = "none";
-};
-
-//window.addEventListener('blur', function() {
-//    if(document.getElementById('game-setup').style.display == "none") {
-//        running = false;
-//        document.getElementById('resume').style.display = "block";
-//        document.getElementById('game-over-overlay').style.display = "block";
-//    }
-//});
