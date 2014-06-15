@@ -13,26 +13,27 @@ function boxCollides(pos, size, pos2, size2) {
 
 function bulletCollisions() {
     // Check bullet collision with walls and players
-    for(var j=0; j<bullets.length; j++) {
-        var pos2 = bullets[j].pos;
-        var size2 = bullets[j].sprite.size;
-        // Checks for bullet -> Player collision
-        if(boxCollides(mario.pos, mario.sprite.size, pos2, size2)) {
-            bullets.splice(j, 1); // Splice removes the bullet item from the array
+    for(var i=0; i<bullets.length; i++) {
+        var bulletPos = bullets[i].pos;
+        var bulletSize = bullets[i].sprite.size;
+        // Checks for bullet -> Mario collision
+        if(boxCollides(mario.pos, mario.sprite.size, bulletPos, bulletSize)) {
+            bullets.splice(i, 1); // Splice removes the bullet item from the array
             mario.kill();
             break;
         }
+        // Checks for bullet -> Luigi collision
         if (twoPlayer) {
-            if(boxCollides(luigi.pos, luigi.sprite.size, pos2, size2)) {
-                bullets.splice(j, 1); // Splice removes the bullet item from the array
+            if(boxCollides(luigi.pos, luigi.sprite.size, bulletPos, bulletSize)) {
+                bullets.splice(i, 1); // Splice removes the bullet item from the array
                 luigi.kill();
                 break;
             }
         }
         // Check for Bullet -> Map collisions
-        for (k=0; k<visibleCubes.length; k++) {
-            if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
-                bullets.splice(j,1);
+        for (var j=0; j<cubes.length; j++) {
+            if(boxCollides(cubes[j].pos, cubes[j].sprite.size, bulletPos, bulletSize)) {
+                bullets.splice(i,1);
             }
         }
     }
@@ -40,8 +41,8 @@ function bulletCollisions() {
 
 function playerCollisions(pos2, size2) {  //player values passed through
     //Check for Player -> Wall/Map collision
-    for (k=0; k<cubes.length; k++) {
-        if(boxCollides(cubes[k].pos, cubes[k].sprite.size, pos2, size2)) {
+    for (var i=0; i<cubes.length; i++) {
+        if(boxCollides(cubes[i].pos, cubes[i].sprite.size, pos2, size2)) {
             return true;
             break;
         }

@@ -1,9 +1,8 @@
 var cubes = [];
 
 function drawMap() {
-    console.log("Drawing Map");
-    for (a=0; a<innerHeight /2; a++) {
-        cubes[a] = new cube(Math.round(innerWidth*Math.random()),Math.round(innerHeight*Math.random()));
+    for (var i=0; i<50; i++) {
+        cubes[i] = new cube(Math.round(innerWidth*Math.random()),Math.round(innerHeight*Math.random()));
     }
 }
 
