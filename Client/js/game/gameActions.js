@@ -88,7 +88,7 @@ function createPlayers() {
         sheild:'SHIFT', 
         pickup: 'Z'
     };
-    mario = new player([innerWidth*0.1,innerHeight*0.25], marioKeyMap);
+    var mario = new player([innerWidth*0.1,innerHeight*0.25], marioKeyMap);
     players.push(mario);
     if(twoPlayer) {
         var luigiKeyMap = {
@@ -100,7 +100,7 @@ function createPlayers() {
             sheild: 'COMMA', 
             pickup: 'FSLASH'
         };
-        luigi = new player([innerWidth*0.9,innerHeight*0.25], luigiKeyMap);
+        var luigi = new player([innerWidth*0.9,innerHeight*0.25], luigiKeyMap);
         players.push(luigi);
     }
 };

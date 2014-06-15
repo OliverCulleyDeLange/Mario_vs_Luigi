@@ -44,7 +44,7 @@ resources.load([
     'img/ML.png',
     'img/terrain.png'
 ]);
-resources.onReady(setupButtonEventListeners());
+resources.onReady(setupButtonEventListeners);
 
 // The main game loop
 function main() {
@@ -62,32 +62,31 @@ function main() {
 };
 
 // Update game objects
-function update(dt) {
+function update() {
     gameTime += dt;
     
     for ( var i = 0; i<players.length; i++) {
-        players[i].handleInput(dt);
-        players[i].move(dt);
-        if(player.shoot && !isGameOver && Date.now() - player.lastFire > 500) {
+        var player = players[i];
+        
+        player.setDefaultValues();
+        player.handleInput();
+        player.updateXVelocity();
+        player.updateYVelocity();
+        player.updatePosition();
+
+        player.checkBounds();
+        player.setWalkAnimation();
+        
+        if(player.shoot && Date.now() - player.lastFire > 500) {
             player.fireGun();
         }
     }
     
     for(var i=0; i<bullets.length; i++) {
         var bullet = bullets[i];
-        if (bullet.dir === 1) { //Bullet travelling right
-            bullet.pos[0] += bulletSpeed * dt;
-        }
-        else { //Bullets travelling left
-            bullet.pos[0] -= bulletSpeed * dt;
-        }
-        // Remove the bullet if it goes offscreen
-        if(bullet.pos[0] > canvas.width || bullet.pos[0] < 0) {
-            bullets.splice(i, 1);
-            i--;
-        }
+        bullet.move();
+        bullet.doCollisionDetection();
     }
-    bulletCollisions(); //Checks for any bullet collisions
 };
 
 // Draw everything

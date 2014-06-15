@@ -37,13 +37,13 @@ function player(pos, keyMap) {
         JUMPRIGHT : 11
     };
     
-    this.kill = (function() {
+    this.kill = function() {
         console.log("Killed");
         this.lives--;
         this.resetAfterDeath();
-    });
+    };
     
-    this.resetAfterDeath = (function() {
+    this.resetAfterDeath = function() {
         this.pos = [this.startPos[0],this.startPos[1]] // x,y position
         this.velocity = [0,0]; //x,y velocitiy
         this.direction = 0;
@@ -53,11 +53,18 @@ function player(pos, keyMap) {
         this.sheildTimeout = 10000;
         this.sheild = false;
         this.pickup = false;
-    });
+    };
     
-    this.lastPressedLeftOrRight = 'left';
+    this.setDefaultValues = function () {
+        this.direction = 0;
+        this.sheild = false;
+        this.shoot = false;
+        this.pickup = false;
+    };
+    
+    this.lastPressedLeftOrRight;
     this.handleInput = function () {
-        this.setDefaultValues();
+//        this.setOnGround();
         if (input.isDown(this.keyMap.down)) {
             if (!this.onGround) this.velocity[1] = this.maxVel[1];
         }
@@ -95,26 +102,18 @@ function player(pos, keyMap) {
             this.pickup = true;
         }
     };
-    
-    this.setDefaultValues = function () {
-        this.direction = 0;
-        this.sheild = false;
-        this.shoot = false;
-        this.pickup = false;
-        //this.onGround = false;
-    };
-    
-    this.move = function() {
-        // Below deals with X axis movement and velocity increase / decrease
-        var velIncX = 0.05;
+
+    this.updateXVelocity = function() {
         if (this.direction) {
             this.faceDir = this.direction;
-            this.velocity[0] += velIncX * this.direction;
+            this.velocity[0] += this.velIncX * this.direction;
         } else {
             this.velocity[0] *= 0.8;
             if (Math.abs(this.velocity[0]) < 0.05) this.velocity[0] = 0;
         }
-        // The below deals with Y axis movement and gravity
+    };
+    
+    this.updateYVelocity = function() {
         if (this.onGround) {
             this.velocity[1] = 0;
         } else {
@@ -124,21 +123,37 @@ function player(pos, keyMap) {
         if (this.velocity[0] < this.minVel[0]) this.velocity[0] = this.minVel[0];
         if (this.velocity[1] > this.maxVel[1]) this.velocity[1] = this.maxVel[1];
         if (this.velocity[1] < this.minVel[1]) this.velocity[1] = this.minVel[1];
-        
-        
+    };
+    
+    this.updatePosition = function() {
         var tmpPosX = this.pos[0] + this.velocity[0] * (playerSpeed * dt);
         var tmpPosY = this.pos[1] + this.velocity[1] * (playerSpeed * dt);
+        var tmpPos = [tmpPosX, tmpPosY];
         
-        if (!playerCollisions([tmpPosX, tmpPosY], this.sprite.size)) {
-            this.pos[0] += this.velocity[0] * (playerSpeed * dt);
-            this.pos[1] += this.velocity[1] * (playerSpeed * dt);
-        } else {
-            //TODO Player is not colliding but not necessarily on ground
-            this.onGround = true;
+        if (!this.willCollideWithMap(tmpPos)) {
+            this.pos = tmpPos;
         }
-        
-        checkPlayerBounds(this);
-        // The below deals with walk animations
+    };
+    
+    this.stoodOnTopOf = function(cube) {
+        var bottomYCoordinateofPlayer = this.pos[1] + this.sprite.size[1];
+        var topYCoordinateOfCube = cube.pos[1];
+        return !boxCollides(cube.pos, cube.sprite.size, 
+                            this.pos, this.sprite.size) &&
+               boxCollides(cube.pos, cube.sprite.size, 
+                            this.pos, [this.sprite.size[0], this.sprite.size[1]+5]);
+    };
+    
+    this.willStandOnTopOf = function(cube, position) {
+        var bottomYCoordinateofPlayer = position[1] + this.sprite.size[1];
+        var topYCoordinateOfCube = cube.pos[1];
+        return !boxCollides(cube.pos, cube.sprite.size, 
+                            position, this.sprite.size) &&
+               boxCollides(cube.pos, cube.sprite.size, 
+                            position, [this.sprite.size[0], this.sprite.size[1]+5]);
+    };
+    
+    this.setWalkAnimation = function() {
         if (this.onGround) {
             if (this.velocity[0] === 0) {
                 this.walkCycle = 0;
@@ -150,7 +165,7 @@ function player(pos, keyMap) {
             }
         } else {
             this.walkCycle = 0;
-                    //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
+            //console.log(player.faceDir < 0 ? player.runStates.JUMPLEFT : player.runStates.JUMPRIGHT);
             this.runState = (this.faceDir < 0 ? this.runStates.JUMPLEFT : this.runStates.JUMPRIGHT);
         }
     };
@@ -163,5 +178,31 @@ function player(pos, keyMap) {
         var bulletDirection = this.faceDir;
         bullets.push(new bullet(bulletPosition , bulletDirection));
         this.lastFire = Date.now();
+    };
+    
+    this.checkBounds = function () {
+        if(this.pos[0] < 0) {
+            this.pos[0] = 0;
+        }
+        else if(this.pos[0] > canvas.width - this.sprite.size[0]) {
+            this.pos[0] = canvas.width - this.sprite.size[0];
+        }
+
+        if(this.pos[1] < 0) {
+            this.pos[1] = 0;
+        }
+        else if(this.pos[1] >= canvas.height - this.sprite.size[1]-50) {
+            this.pos[1] = canvas.height - this.sprite.size[1]-50;
+            this.onGround = true;
+        }
+    };
+    
+    this.willCollideWithMap = function(position) {
+        //Check for Player -> Wall/Map collision
+        for (var i=0; i<cubes.length -1; i++) { //TODO narrow down to only check collision with nearby cubes
+            var collision = boxCollides(cubes[i].pos, cubes[i].sprite.size, position, this.sprite.size);
+            if( collision ) return true;
+        }
+        return false;
     };
 };
