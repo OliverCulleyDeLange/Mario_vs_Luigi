@@ -64,17 +64,20 @@ function player(pos, keyMap) {
     
     this.lastPressedLeftOrRight;
     this.handleInput = function () {
-//        this.setOnGround();
+        var currentlyPressed = "";
         if (input.isDown(this.keyMap.down)) {
+            currentlyPressed += ", down";
             if (!this.onGround) this.velocity[1] = this.maxVel[1];
         }
         if (input.isDown(this.keyMap.up)) {
+            currentlyPressed += ", up";
             if (this.onGround) {
                 this.velocity[1] = this.minVel[1];
                 this.onGround = false;
             }
         }
         if (input.isDown(this.keyMap.left) && input.isDown(this.keyMap.right)) {
+            currentlyPressed += ", left & right";
             if (this.lastPressedLeftOrRight === 'left') {
                 this.direction = 1;
                 this.lastPressedLeftOrRight = 'left';
@@ -84,10 +87,12 @@ function player(pos, keyMap) {
             }
         } else {
             if (input.isDown(this.keyMap.left)) {
+                currentlyPressed += ", left";
                 this.direction = -1;
                 this.lastPressedLeftOrRight = 'left';
             }
             if (input.isDown(this.keyMap.right)) {
+                currentlyPressed += ", right";
                 this.direction = 1;
                 this.lastPressedLeftOrRight = 'right';
             }
@@ -101,6 +106,7 @@ function player(pos, keyMap) {
         if (input.isDown(this.keyMap.pickup)) {
             this.pickup = true;
         }
+//        if (currentlyPressed) console.log(currentlyPressed);
     };
 
     this.updateXVelocity = function() {
@@ -130,8 +136,18 @@ function player(pos, keyMap) {
         var tmpPosY = this.pos[1] + this.velocity[1] * (playerSpeed * dt);
         var tmpPos = [tmpPosX, tmpPosY];
         
-        if (!this.willCollideWithMap(tmpPos)) {
+        var i = 0;
+        while (this.willCollideWithMap(tmpPos) && (i < 5))  {
+            tmpPos[0] = this.pos[0] + ((tmpPos[0] - this.pos[0]) /2 );
+            tmpPos[1] = this.pos[1] + ((tmpPos[1] - this.pos[1]) /2 );
+            console.log("Change " + i + " = " + tmpPos);
+            i++
+        }
+        if ( i < 5 ) {
             this.pos = tmpPos;
+            this.onGround = false;
+        } else {
+            this.onGround = true;
         }
     };
     

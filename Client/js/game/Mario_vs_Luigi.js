@@ -51,9 +51,9 @@ function main() {
     if(!running) return;
         
     var now = Date.now();
-    dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
-
-    update(dt);
+//    dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
+      dt = 0.05;
+    update();
     render();
 
     lastTime = now;

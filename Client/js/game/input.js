@@ -49,10 +49,12 @@
 
     document.addEventListener('keydown', function(e) {
         setKey(e, true);
+//        console.log(e.keyCode + " down");
     });
 
     document.addEventListener('keyup', function(e) {
         setKey(e, false);
+//        console.log(e.keyCode + " up");
     });
 
     window.addEventListener('blur', function() {
