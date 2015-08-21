@@ -46,7 +46,23 @@ resources.load([
 ]);
 resources.onReady(setupButtonEventListeners);
 
-// The main game loop
+function setupButtonEventListeners() {
+    document.getElementById('play-reset').addEventListener('click', reset);
+    document.getElementById('resume').addEventListener('click', resume);
+    document.getElementById('play').addEventListener('click', startGame);
+    document.getElementById('onePlayer').addEventListener('click', setOnePlayer);
+    document.getElementById('twoPlayer').addEventListener('click', setTwoPlayer);
+    document.getElementById('localPlay').addEventListener('click', setLocalPlay);
+    document.getElementById('onlinePlay').addEventListener('click', setOnlinePlay);
+    // window.addEventListener('blur', function() {
+    // if(document.getElementById('game-setup').style.display == "none") {
+    //    running = false;
+    //    document.getElementById('resume').style.display = "block";
+    //    document.getElementById('game-over-overlay').style.display = "block";
+    // }
+    // });
+};
+
 function main() {
     if(!running) return;
         
@@ -61,7 +77,6 @@ function main() {
     //console.log("Game Frame");
 };
 
-// Update game objects
 function update() {
     gameTime += dt;
     
@@ -89,12 +104,10 @@ function update() {
     }
 };
 
-// Draw everything
 function render() {
     ctx.fillStyle = terrainPattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Render the players if the game isn't over
     if(!isGameOver) {
         renderEntities(players);
         renderEntities(bullets);
@@ -113,4 +126,28 @@ function renderEntity(entity) {
     ctx.translate(entity.pos[0], entity.pos[1]);
     entity.sprite.render(ctx, entity.runState);
     ctx.restore();
+};
+
+// A cross-browser requestAnimationFrame
+// See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/
+function getAnimationFrame() {
+    return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 1000 / 60);
+            };
+};
+
+function createCanvas() {
+    canvas = document.createElement("canvas");
+    ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    
+    ctx.fillStyle = '#333';
+    terrainPattern = ctx.fillRect(0,0,canvas.width,canvas.height);
 };

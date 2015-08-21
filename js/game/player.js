@@ -1,4 +1,5 @@
-function player(pos, keyMap) {
+function player(name, pos, keyMap) {
+    this.name = name;
     this.pos = pos; // x,y position
     this.startPos = [pos[0],pos[1]];
     this.velocity = [0,0]; //x,y velocitiy
@@ -36,7 +37,7 @@ function player(pos, keyMap) {
         SKIDRIGHT : 10,
         JUMPRIGHT : 11
     };
-    
+        
     this.kill = function() {
         console.log("Killed");
         this.lives--;
@@ -140,7 +141,7 @@ function player(pos, keyMap) {
         while (this.willCollideWithMap(tmpPos) && (i < 5))  {
             tmpPos[0] = this.pos[0] + ((tmpPos[0] - this.pos[0]) /2 );
             tmpPos[1] = this.pos[1] + ((tmpPos[1] - this.pos[1]) /2 );
-            console.log("Change " + i + " = " + tmpPos);
+            // console.log("Change " + i + " = " + tmpPos);
             i++
         }
         if ( i < 5 ) {

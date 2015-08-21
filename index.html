@@ -38,10 +38,14 @@
     <div id="setup2">
         <h2> Play Locally or Online? </h2>
         <button class="button-link button-selected" id="localPlay">Locally</button>
-        <button class="button-link button-disabled" id="onlinePlay" disabled >Online</button>
+        <button class="button-link" id="onlinePlay">Online</button>
     </div>
     <br />
     <button class="button-link" id="play">Play</button>
+    <div id="waiting-room" hidden>
+        <h2>Available games:</h2>
+        <div id='available-games'></div>
+    </div>
 </div>
 <div id="resume">
     <button class="button-link">Resume</button>
@@ -51,6 +55,7 @@
 <!--<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>-->
 <script src="js/plugins.js"></script>
 <!-- Game -->
+<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/game/input.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/game/resources.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/game/sprite.js"></script>

@@ -110,6 +110,10 @@ canvas {
     border: solid 2px #ff0000;
 }
 
+#available-games ul {
+    padding: 0px;
+    list-style: none;
+}
 #vars {
     position: absolute;
     top: 0;
