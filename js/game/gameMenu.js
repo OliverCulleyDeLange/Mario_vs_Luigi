@@ -45,7 +45,6 @@ function setLocalPlay() {
     document.getElementById('onlinePlay').className = 'button-link';
     document.getElementById('play').innerHTML = "Play";
     hideWaitingRooms();
-    // socket.disconnect();
     onlinePlay = false;
 };
 
@@ -63,7 +62,7 @@ function setOnlinePlay() {
         });
         socket.on('luigi enter', function(luigi) {
             console.log("luigi has entered");
-            createLuigi();
+            createLuigi(false);
         });
     }
     socket.emit('get rooms');

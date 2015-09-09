@@ -1,5 +1,6 @@
-function player(name, pos, keyMap) {
+function player(name, pos, keyMap, controlable) {
     this.name = name;
+    this.controlable = controlable;
     this.pos = pos; // x,y position
     this.startPos = [pos[0],pos[1]];
     this.velocity = [0,0]; //x,y velocitiy
@@ -65,6 +66,8 @@ function player(name, pos, keyMap) {
     
     this.lastPressedLeftOrRight;
     this.handleInput = function () {
+        if (!this.controlable) { return; }
+
         var currentlyPressed = "";
         if (input.isDown(this.keyMap.down)) {
             currentlyPressed += ", down";

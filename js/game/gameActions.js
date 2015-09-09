@@ -1,12 +1,12 @@
 function startGame() {
-    createMario();
+    createMario(true);
     if (onlinePlay) {
         console.log('mario start - telling server an open game has begun');
         socket.emit('mario start');
     }
 
     if (!onlinePlay && twoPlayer) {
-        createLuigi();
+        createLuigi(true);
     }
 
     begin();
@@ -15,8 +15,8 @@ function startGame() {
 function joinGame(evt) {       
     var gameRoom = evt.target.getAttribute('data-room');
     console.log("Joining game " + gameRoom);
-    createMario();
-    createLuigi();
+    createMario(false);
+    createLuigi(true);
     socket.emit('luigi join', gameRoom);
 
     begin();
@@ -58,7 +58,7 @@ function resume() {
 };
 
 
-function createMario() {
+function createMario(controlable) {
     var marioKeyMap = {
         up: 'W', 
         left: 'A', 
@@ -68,11 +68,11 @@ function createMario() {
         sheild:'SHIFT', 
         pickup: 'Z'
     };
-    var mario = new player("mario", [innerWidth*0.1,innerHeight*0.25], marioKeyMap);
+    var mario = new player("mario", [innerWidth*0.1,innerHeight*0.25], marioKeyMap, controlable);
     players.push(mario);
 };
 
-function createLuigi() {    
+function createLuigi(controlable) {    
         var luigiKeyMap = {
             up: 'UP', 
             left: 'LEFT', 
@@ -82,7 +82,7 @@ function createLuigi() {
             sheild: 'COMMA', 
             pickup: 'FSLASH'
         };
-        var luigi = new player("luigi", [innerWidth*0.9,innerHeight*0.25], luigiKeyMap);
+        var luigi = new player("luigi", [innerWidth*0.9,innerHeight*0.25], luigiKeyMap, controlable);
         players.push(luigi);
 };
 

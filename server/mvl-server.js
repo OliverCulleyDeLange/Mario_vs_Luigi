@@ -38,22 +38,29 @@ io.on('connection', function(socket){
   })
 
   socket.on('disconnect', function(){
+    console.log('disconnected: ' + socket.id);
     var room = socket.id;
-    var index;
-    for (var i = gamePairs.length - 1; i >= 0; i--) {
-         if (gamePairs[i][0] == room) {
-          var luigiRoom = gamePairs[i][1];
-          console.log('a mario disconnected, luigis room ' + luigiRoom + ' becomes free to join');
-          availableRooms.push(luigiRoom);
-          index = i;
-        } else if (gamePairs[i][1] == room) {
-          var marioRoom = gamePairs[i][0];
-          console.log('a luigi disconnected, marios room ' + marioRoom + ' becomes free again');
-          availableRooms.push(marioRoom);
-          index = i;
-        }
-    };
-    gamePairs.splice(index, 1);
+    var index = availableRooms.indexOf(room);
+    if ( index > -1 ) {
+          console.log('a mario disconnected, no game in progress: ' + room);
+          availableRooms.splice(index, 1);
+    } else {
+      for (var i = gamePairs.length - 1; i >= 0; i--) {
+           if (gamePairs[i][0] == room) {
+            var luigiRoom = gamePairs[i][1];
+            console.log('a mario disconnected, luigis room ' + luigiRoom + ' becomes free to join');
+            availableRooms.push(luigiRoom);
+            index = i;
+          } else if (gamePairs[i][1] == room) {
+            var marioRoom = gamePairs[i][0];
+            console.log('a luigi disconnected, marios room ' + marioRoom + ' becomes free again');
+            availableRooms.push(marioRoom);
+            index = i;
+          }
+      };
+      gamePairs.splice(index, 1);
+    }
+
     printRooms();
   });
 });
