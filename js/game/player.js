@@ -136,22 +136,24 @@ function player(name, pos, keyMap, controlable) {
     };
     
     this.updatePosition = function() {
-        var tmpPosX = this.pos[0] + this.velocity[0] * (playerSpeed * dt);
-        var tmpPosY = this.pos[1] + this.velocity[1] * (playerSpeed * dt);
-        var tmpPos = [tmpPosX, tmpPosY];
-        
-        var i = 0;
-        while (this.willCollideWithMap(tmpPos) && (i < 5))  {
-            tmpPos[0] = this.pos[0] + ((tmpPos[0] - this.pos[0]) /2 );
-            tmpPos[1] = this.pos[1] + ((tmpPos[1] - this.pos[1]) /2 );
-            // console.log("Change " + i + " = " + tmpPos);
-            i++
-        }
-        if ( i < 5 ) {
-            this.pos = tmpPos;
-            this.onGround = false;
-        } else {
-            this.onGround = true;
+        if (this.velocity[0] || this.velocity[1]) {
+            var tmpPosX = this.pos[0] + this.velocity[0] * (playerSpeed * dt);
+            var tmpPosY = this.pos[1] + this.velocity[1] * (playerSpeed * dt);
+            var tmpPos = [tmpPosX, tmpPosY];
+            
+            var i = 0;
+            while (this.willCollideWithMap(tmpPos) && (i < 5))  {
+                tmpPos[0] = this.pos[0] + ((tmpPos[0] - this.pos[0]) /2 );
+                tmpPos[1] = this.pos[1] + ((tmpPos[1] - this.pos[1]) /2 );
+                // console.log("Change " + i + " = " + tmpPos);
+                i++
+            }
+            if ( i < 5 ) {
+                this.pos = tmpPos;
+                this.onGround = false;
+            } else {
+                this.onGround = true;
+            }
         }
     };
     
