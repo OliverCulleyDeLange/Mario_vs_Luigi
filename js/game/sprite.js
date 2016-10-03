@@ -33,8 +33,8 @@
             }
 
 
-            var x = this.pos[0];
-            var y = this.pos[1];
+            var x = this.pos.x;
+            var y = this.pos.y;
             if(runState) {
                 // Animating Mario or Luigi so need a run state
                 x += runState * this.size[0];

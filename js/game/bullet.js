@@ -1,18 +1,18 @@
 function bullet(pos, dir) {
     this.pos = pos;
     this.dir = dir;
-    this.sprite = new Sprite('img/ML.png', [0,0], [8,4], 0);
+    this.sprite = new Sprite('img/ML.png', {x:0,y: 0}, [8,4], 0);
     //                 (url, pos, size, speed, frames, dir, once)
 
     this.move = function() {
         if (this.dir === 1) { //Bullet travelling right
-            this.pos[0] += bulletSpeed * dt;
+            this.pos.x += bulletSpeed * dt;
         }
         else { //Bullets travelling left
-            this.pos[0] -= bulletSpeed * dt;
+            this.pos.x -= bulletSpeed * dt;
         }
         //Remove if off screen
-        if(this.pos[0] > canvas.width || this.pos[0] < 0) {
+        if(this.pos.x > canvas.width || this.pos.x < 0) {
             var index = bullets.indexOf(this)
             if (index > -1) {
                 bullets.splice(index, 1);

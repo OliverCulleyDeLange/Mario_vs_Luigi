@@ -9,5 +9,5 @@ function drawMap() {
 function cube(x,y) {
     this.pos = [x,y];
     this.size = [16, 16];
-    this.sprite = new Sprite('img/terrain.png', [0, 0], [16, 16], [0]);
+    this.sprite = new Sprite('img/terrain.png', {x:0,y: 0}, [16, 16], [0]);
 };

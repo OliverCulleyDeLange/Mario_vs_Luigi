@@ -84,7 +84,7 @@ function renderEntities(list) {
 
 function renderEntity(entity) {
     ctx.save();
-    ctx.translate(entity.pos[0], entity.pos[1]);
+    ctx.translate(entity.pos.x, entity.pos.y);
     entity.sprite.render(ctx, entity.runState);
     ctx.restore();
 };

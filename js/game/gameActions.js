@@ -45,8 +45,8 @@ function reset() {
 
     bullets = [];
 
-    mario.pos = [canvas.width * 0.1, canvas.height / 3];
-    if(twoPlayer) luigi.pos = [canvas.width * 0.9, canvas.height / 3];
+    mario.pos = {x: canvas.width * 0.1, y: canvas.height / 3};
+    if(twoPlayer) luigi.pos = {x: canvas.width * 0.9, y: canvas.height / 3};
 };
 
 function resume() {
@@ -68,7 +68,7 @@ function createMario(controlable) {
         sheild:'SHIFT', 
         pickup: 'Z'
     };
-    var mario = new player("mario", [innerWidth*0.1,innerHeight*0.25], marioKeyMap, controlable);
+    var mario = new player("mario", {x: innerWidth*0.1, y: innerHeight*0.25}, marioKeyMap, controlable);
     players.push(mario);
 };
 
@@ -82,7 +82,7 @@ function createLuigi(controlable) {
             sheild: 'COMMA', 
             pickup: 'FSLASH'
         };
-        var luigi = new player("luigi", [innerWidth*0.9,innerHeight*0.25], luigiKeyMap, controlable);
+        var luigi = new player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, luigiKeyMap, controlable);
         players.push(luigi);
 };
 
