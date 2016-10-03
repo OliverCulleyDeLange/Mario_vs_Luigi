@@ -69,7 +69,11 @@ function createMario(controlable) {
         pickup: 'Z'
     };
     var mario = new player("mario", {x: innerWidth*0.1, y: innerHeight*0.25}, marioKeyMap, controlable);
-    players.push(mario);
+    if (controlable) {
+        players.me = mario
+    } else {
+        players.opponent = mario
+    }
 };
 
 function createLuigi(controlable) {    
@@ -83,7 +87,11 @@ function createLuigi(controlable) {
             pickup: 'FSLASH'
         };
         var luigi = new player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, luigiKeyMap, controlable);
-        players.push(luigi);
+        if (controlable && onlinePlay) {
+            players.me = luigi
+        } else {
+            players.opponent = luigi
+        }
 };
 
 

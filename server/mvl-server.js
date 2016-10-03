@@ -4,12 +4,12 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var availableRooms = [];
-var gamePairs = [];
+var gamePairs = {};
 function printRooms(){
-  console.log('_____________________________________');
-  console.log('available rooms : ' + availableRooms);
-  console.log('     game pairs : ' + gamePairs);
-  console.log('-------------------------------------');
+  console.log(' _____________________________________');
+  console.log('|| available rooms : ' + availableRooms);
+  console.log('||      game pairs : ' + JSON.stringify(gamePairs));
+  console.log(' -------------------------------------');
 };
 
 io.on('connection', function(socket){
@@ -31,10 +31,11 @@ io.on('connection', function(socket){
     if (index > -1) {
       var marioRoom = availableRooms.splice(index, 1);
       var luigiSocket = socket.id;
-      gamePairs.push([marioRoom, luigiSocket]);
+      gamePairs[marioRoom] = luigiSocket;
+      gamePairs[luigiSocket] = marioRoom;
     }
     printRooms();
-    socket.broadcast.to(room).emit('luigi enter');
+    io.to(room).emit('luigi enter');
   })
 
   socket.on('disconnect', function(){
@@ -45,24 +46,25 @@ io.on('connection', function(socket){
           console.log('a mario disconnected, no game in progress: ' + room);
           availableRooms.splice(index, 1);
     } else {
-      for (var i = gamePairs.length - 1; i >= 0; i--) {
-           if (gamePairs[i][0] == room) {
-            var luigiRoom = gamePairs[i][1];
-            console.log('a mario disconnected, luigis room ' + luigiRoom + ' becomes free to join');
-            availableRooms.push(luigiRoom);
-            index = i;
-          } else if (gamePairs[i][1] == room) {
-            var marioRoom = gamePairs[i][0];
-            console.log('a luigi disconnected, marios room ' + marioRoom + ' becomes free again');
-            availableRooms.push(marioRoom);
-            index = i;
-          }
-      };
-      gamePairs.splice(index, 1);
+        var disconnectedPlayersPartner = gamePairs[room];
+        var disconnectedPlayer = gamePairs[disconnectedPlayersPartner];
+        console.log('someone disconnected, ' + disconnectedPlayersPartner + ' will be notified!');
+        io.to(disconnectedPlayersPartner).emit('partner exit')
+        delete gamePairs[disconnectedPlayersPartner];
+        delete gamePairs[disconnectedPlayer];
     }
 
     printRooms();
   });
+
+  socket.on('player move', function(position) {
+    var playerId = socket.id;
+//    console.log(playerId + ': Player moved to position ' + JSON.stringify(position));
+    // Find paired game
+    var partner = gamePairs[playerId]
+    // Send pair players location
+    io.to(partner).emit('partner move', position)
+  })
 });
 
 http.listen(3000, function(){

@@ -22,11 +22,20 @@ function bullet(pos, dir) {
     
     this.doCollisionDetection = function () {
         // Bullet -> Player collisions
-        for (var i=0; i<players.length; i++) {
-            var player = players[i];
-            if(boxCollides(player.pos, player.sprite.size, this.pos, this.sprite.size)) {
-                bullets.splice(i, 1); // Splice removes the bullet item from the array
-                player.kill();
+        if(boxCollides(players.me.pos, players.me.sprite.size, this.pos, this.sprite.size)) {
+            var index = bullets.indexOf(this)
+            if (index > -1) {
+                bullets.splice(index, 1);
+            }
+            players.me.kill();
+        }
+        if (twoPlayer) {
+            if(boxCollides(players.opponent.pos, players.opponent.sprite.size, this.pos, this.sprite.size)) {
+            var index = bullets.indexOf(this)
+            if (index > -1) {
+                bullets.splice(index, 1);
+            }
+            players.opponent.kill();
             }
         }
         // Bullet -> Map collisions

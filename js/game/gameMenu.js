@@ -64,6 +64,14 @@ function setOnlinePlay() {
             console.log("luigi has entered");
             createLuigi(false);
         });
+        socket.on('partner move', function(newPos) {
+            console.log('Partner moved to ' + JSON.stringify(newPos));
+            players.opponent.pos = newPos;
+        });
+        socket.on('partner exit', function() {
+            console.log("Partner has left the game")
+            gameOver();
+        });
     }
     socket.emit('get rooms');
     document.getElementById('play').innerHTML = "Start new game";

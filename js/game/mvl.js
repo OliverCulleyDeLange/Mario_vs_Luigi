@@ -40,28 +40,32 @@ function main() {
 
 function update() {
     gameTime += dt;
-    
-    for ( var i = 0; i<players.length; i++) {
-        var player = players[i];
-        
-        player.setDefaultValues();
-        player.handleInput();
-        player.updateXVelocity();
-        player.updateYVelocity();
-        player.updatePosition();
 
-        player.checkBounds();
-        player.setWalkAnimation();
-        
-        if(player.shoot && Date.now() - player.lastFire > 250) {
-            player.fireGun();
-        }
+    updatePlayer(players.me);
+    socket.emit('player move', players.me.pos);
+    if (twoPlayer && players.opponent) {
+        updatePlayer(players.opponent)
     }
-    
+
     for(var i=0; i<bullets.length; i++) {
         var bullet = bullets[i];
         bullet.move();
         bullet.doCollisionDetection();
+    }
+};
+
+function updatePlayer(player) {
+    player.setDefaultValues();
+    player.handleInput();
+    player.updateXVelocity();
+    player.updateYVelocity();
+    player.updatePosition();
+
+    player.checkBounds();
+    player.setWalkAnimation();
+
+    if(player.shoot && Date.now() - player.lastFire > 250) {
+        player.fireGun();
     }
 };
 
@@ -70,7 +74,8 @@ function render() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if(!isGameOver) {
-        renderEntities(players);
+        renderEntity(players.me);
+        if (twoPlayer && players.opponent) renderEntity(players.opponent);
         renderEntities(bullets);
         renderEntities(cubes);
     };
