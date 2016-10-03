@@ -13,8 +13,10 @@ function bullet(pos, dir) {
         }
         //Remove if off screen
         if(this.pos[0] > canvas.width || this.pos[0] < 0) {
-            bullets.splice(i, 1);
-            i--;
+            var index = bullets.indexOf(this)
+            if (index > -1) {
+                bullets.splice(index, 1);
+            }
         }
     }
     

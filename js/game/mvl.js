@@ -28,8 +28,8 @@ function main() {
     if(!running) return;
         
     var now = Date.now();
-//    dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
-      dt = 0.05;
+    dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
+//      dt = 0.05; // Use for debugging when you don't want massive DTs because of breakpoints
     update();
     render();
 
@@ -53,7 +53,7 @@ function update() {
         player.checkBounds();
         player.setWalkAnimation();
         
-        if(player.shoot && Date.now() - player.lastFire > 500) {
+        if(player.shoot && Date.now() - player.lastFire > 250) {
             player.fireGun();
         }
     }

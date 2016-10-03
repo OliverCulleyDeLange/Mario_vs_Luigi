@@ -1,7 +1,7 @@
 var cubes = [];
 
 function drawMap() {
-    for (var i=0; i<50; i++) {
+    for (var i=0; i<0; i++) {
         cubes[i] = new cube(Math.round(innerWidth*Math.random()),Math.round(innerHeight*Math.random()));
     }
 }

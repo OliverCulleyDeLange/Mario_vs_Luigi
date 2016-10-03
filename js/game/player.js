@@ -4,8 +4,9 @@ function player(name, pos, keyMap, controlable) {
     this.pos = pos; // x,y position
     this.startPos = [pos[0],pos[1]];
     this.velocity = [0,0]; //x,y velocitiy
-    this.maxVel = [0.5, 2];
-    this.minVel = [-0.5, -1];
+    //TODO rename these so they make more sense
+    this.maxVel = [0.8, 1.5]; // Velocity for x (right) & y (down)
+    this.minVel = [-1, -1.5]; // Velocity for x (left) & y (up)
     this.velIncX = 0.05;
     this.direction = 0;
     this.faceDir = 1;
@@ -121,6 +122,8 @@ function player(name, pos, keyMap, controlable) {
             this.velocity[0] *= 0.8;
             if (Math.abs(this.velocity[0]) < 0.05) this.velocity[0] = 0;
         }
+        if (this.velocity[0] > this.maxVel[0]) this.velocity[0] = this.maxVel[0];
+        if (this.velocity[0] < this.minVel[0]) this.velocity[0] = this.minVel[0];
     };
     
     this.updateYVelocity = function() {
@@ -129,16 +132,14 @@ function player(name, pos, keyMap, controlable) {
         } else {
             this.velocity[1] += 0.08;
         }
-        if (this.velocity[0] > this.maxVel[0]) this.velocity[0] = this.maxVel[0];
-        if (this.velocity[0] < this.minVel[0]) this.velocity[0] = this.minVel[0];
         if (this.velocity[1] > this.maxVel[1]) this.velocity[1] = this.maxVel[1];
         if (this.velocity[1] < this.minVel[1]) this.velocity[1] = this.minVel[1];
     };
     
     this.updatePosition = function() {
         if (this.velocity[0] || this.velocity[1]) {
-            var tmpPosX = this.pos[0] + this.velocity[0] * (playerSpeed * dt);
-            var tmpPosY = this.pos[1] + this.velocity[1] * (playerSpeed * dt);
+            var tmpPosX = this.pos[0] + (this.velocity[0] * (playerSpeed * dt));
+            var tmpPosY = this.pos[1] + (this.velocity[1] * (playerSpeed * dt));
             var tmpPos = [tmpPosX, tmpPosY];
             
             var i = 0;

@@ -4,8 +4,8 @@ var onlinePlay = false;
 var twoPlayer = false;
 var socket = null;
 var players = [];
-var playerSpeed = 500;
-var bulletSpeed = 275;
+var playerSpeed = 600;
+var bulletSpeed = 800;
 var bullets = [];
 
 var gameTime = 0;
