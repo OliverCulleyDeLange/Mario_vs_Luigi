@@ -42,7 +42,9 @@ function update() {
     gameTime += dt;
 
     updatePlayer(players.me);
-    socket.emit('player move', players.me.pos);
+    if (players.me.velocity.x || players.me.velocity.y) {
+        socket.emit('player move', players.me.pos);
+    }
     if (twoPlayer && players.opponent) {
         updatePlayer(players.opponent)
     }
