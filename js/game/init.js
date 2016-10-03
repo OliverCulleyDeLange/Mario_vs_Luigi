@@ -6,7 +6,6 @@ var socket = null;
 var players = {};
 var playerSpeed = 600;
 var bulletSpeed = 800;
-var bullets = [];
 
 var gameTime = 0;
 var isGameOver;

@@ -4,7 +4,7 @@ function bullet(pos, dir) {
     this.sprite = new Sprite('img/ML.png', {x:0,y: 0}, [8,4], 0);
     //                 (url, pos, size, speed, frames, dir, once)
 
-    this.move = function() {
+    this.move = function(bullets) {
         if (this.dir === 1) { //Bullet travelling right
             this.pos.x += bulletSpeed * dt;
         }
@@ -20,7 +20,7 @@ function bullet(pos, dir) {
         }
     }
     
-    this.doCollisionDetection = function () {
+    this.doCollisionDetection = function(bullets) {
         // Bullet -> Player collisions
         if(boxCollides(players.me.pos, players.me.sprite.size, this.pos, this.sprite.size)) {
             var index = bullets.indexOf(this)

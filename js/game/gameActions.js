@@ -43,8 +43,6 @@ function reset() {
     isGameOver = false;
     gameTime = 0;
 
-    bullets = [];
-
     mario.pos = {x: canvas.width * 0.1, y: canvas.height / 3};
     if(twoPlayer) luigi.pos = {x: canvas.width * 0.9, y: canvas.height / 3};
 };

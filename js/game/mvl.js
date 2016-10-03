@@ -42,17 +42,11 @@ function update() {
     gameTime += dt;
 
     updatePlayer(players.me);
-    if (players.me.velocity.x || players.me.velocity.y) {
+    if (onlinePlay && (players.me.velocity.x || players.me.velocity.y)) {
         socket.emit('player move', players.me.pos);
     }
-    if (twoPlayer && players.opponent) {
+    if (twoPlayer && players.opponent && !onlinePlay) {
         updatePlayer(players.opponent)
-    }
-
-    for(var i=0; i<bullets.length; i++) {
-        var bullet = bullets[i];
-        bullet.move();
-        bullet.doCollisionDetection();
     }
 };
 
@@ -69,6 +63,7 @@ function updatePlayer(player) {
     if(player.shoot && Date.now() - player.lastFire > 250) {
         player.fireGun();
     }
+    player.updateBullets();
 };
 
 function render() {
@@ -77,8 +72,13 @@ function render() {
 
     if(!isGameOver) {
         renderEntity(players.me);
-        if (twoPlayer && players.opponent) renderEntity(players.opponent);
-        renderEntities(bullets);
+        renderEntities(players.me.bullets);
+
+        if (twoPlayer && players.opponent) {
+            renderEntity(players.opponent);
+            renderEntities(players.opponent.bullets)
+        }
+
         renderEntities(cubes);
     };
 };

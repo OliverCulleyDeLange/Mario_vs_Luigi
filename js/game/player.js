@@ -22,6 +22,7 @@ function player(name, pos, keyMap, controlable) {
     this.sprite = new Sprite('img/ML.png', {x:0,y: 0}, [16,16], 16, [0]);
     this.keyMap = keyMap;
     //Weapon/Sheild
+    this.bullets = [];
     this.lastFire = Date.now();
     this.shoot = false;
     this.sheildTimeout = 10000;
@@ -205,8 +206,16 @@ function player(name, pos, keyMap, controlable) {
         
         var bulletPosition = { x: x + this.sprite.size[0] * this.faceDir, y:y };
         var bulletDirection = this.faceDir;
-        bullets.push(new bullet(bulletPosition , bulletDirection));
+        this.bullets.push(new bullet(bulletPosition , bulletDirection));
         this.lastFire = Date.now();
+    };
+
+    this.updateBullets = function() {
+        for(var i=0; i < this.bullets.length; i++) {
+            var bullet = this.bullets[i];
+            bullet.move(this.bullets);
+            bullet.doCollisionDetection(this.bullets);
+        }
     };
     
     this.checkBounds = function () {
