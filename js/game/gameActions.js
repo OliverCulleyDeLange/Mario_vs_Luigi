@@ -40,7 +40,6 @@ function gameOver() {
 function reset() {
     document.getElementById('game-over').style.display = 'none';
     document.getElementById('game-over-overlay').style.display = 'none';
-    //document.getElementById('game-setup').style.display = 'none';
     showGameMenu()
 };
 

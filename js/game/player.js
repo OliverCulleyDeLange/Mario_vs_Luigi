@@ -48,7 +48,6 @@ function player(name, pos, keyMap, controlable) {
     };
 
     this.kill = function() {
-        console.log("Killed");
         this.lives--;
         this.resetAfterDeath();
     };
@@ -258,5 +257,10 @@ function player(name, pos, keyMap, controlable) {
             if( collision ) return true;
         }
         return false;
+    };
+
+    this.updateStats = function() {
+        document.getElementById(this.name + "lives").innerHTML  = this.lives
+        document.getElementById(this.name + "score").innerHTML  = this.score
     };
 };

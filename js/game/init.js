@@ -18,7 +18,6 @@ var createCanvas = function() {
     canvas.height = window.innerHeight;
     document.body.appendChild(canvas);
     ctx.fillStyle = '#333';
-    terrainPattern = ctx.fillRect(0,0,canvas.width,canvas.height);  
 }();
 
 // A cross-browser requestAnimationFrame

@@ -1,5 +1,5 @@
 /*
- *  M_vs_L
+ *  MvL
  *  Two player 2D Mario influenced shooter
  *  Basic arrow key interaction (Up (Jump), Left, Right, Down (Drop))
  *  Control character on screen - Kill enemies and other player if 2 player
@@ -66,11 +66,11 @@ function updatePlayer(player) {
         player.fireGun();
     }
     player.updateBullets();
+    player.updateStats();
 };
 
 
 function render() {
-    ctx.fillStyle = terrainPattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if(!isGameOver) {
