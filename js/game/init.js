@@ -1,16 +1,4 @@
-// Game state
-var running = false;
-var onlinePlay = false;
-var twoPlayer = false;
-var socket = null;
-var players = {};
-var playerSpeed = 600;
-var bulletSpeed = 800;
-
-var gameTime = 0;
-var isGameOver;
-var terrainPattern;
-
+// Everything starts here!
 var createCanvas = function() {
     canvas = document.createElement("canvas");
     ctx = canvas.getContext("2d");
@@ -37,16 +25,15 @@ resources.load([
     'img/ML.png',
     'img/terrain.png'
 ]);
-resources.onReady(setupButtonEventListeners);
-
-function setupButtonEventListeners() {
-    document.getElementById('play-reset').addEventListener('click', reset);
-    document.getElementById('resume').addEventListener('click', resume);
-    document.getElementById('play').addEventListener('click', startGame);
-    document.getElementById('onePlayer').addEventListener('click', setOnePlayer);
-    document.getElementById('twoPlayer').addEventListener('click', setTwoPlayer);
-    document.getElementById('localPlay').addEventListener('click', setLocalPlay);
-    document.getElementById('onlinePlay').addEventListener('click', setOnlinePlay);
+resources.onReady(function setupButtonEventListeners() {
+    document.getElementById('play-reset').addEventListener('click', mvl.actions.reset);
+    document.getElementById('resume').addEventListener('click', mvl.actions.resume);
+    document.getElementById('play').addEventListener('click', mvl.actions.startGame);
+    document.getElementById('onePlayer').addEventListener('click', mvl.menu.setOnePlayer);
+    document.getElementById('twoPlayer').addEventListener('click', mvl.menu.setTwoPlayer);
+    document.getElementById('localPlay').addEventListener('click', mvl.menu.setLocalPlay);
+    document.getElementById('onlinePlay').addEventListener('click', mvl.menu.setOnlinePlay);
+    // Uncomment for onblur game pausing. Annoying for debugging
     // window.addEventListener('blur', function() {
     // if(document.getElementById('game-setup').style.display == "none") {
     //    running = false;
@@ -54,4 +41,4 @@ function setupButtonEventListeners() {
     //    document.getElementById('game-over-overlay').style.display = "block";
     // }
     // });
-};
+});

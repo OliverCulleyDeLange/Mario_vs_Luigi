@@ -1,37 +1,42 @@
-function initSocketIO() {
-    socket = io('http://localhost:3000');
+mvl.socketio = {
+    init: function() {
+        if (typeof mvl.socket === 'undefined' || !mvl.socket) {
+//            mvl.socket = io('http://localhost:3000');
+            mvl.socket = io('https://mvl.herokuapp.com');
 
-    socket.on('available rooms', function(rooms) {
-        console.log("got available rooms:" + rooms);
-        setWaitingRooms(rooms);
-    });
+            mvl.socket.on('available rooms', function(rooms) {
+                console.log("got available rooms:" + rooms);
+                mvl.menu.setWaitingRooms(rooms);
+            });
 
-    socket.on('luigi enter', function(luigi) {
-        console.log("luigi has entered");
-        createLuigi(false);
-    });
+            mvl.socket.on('luigi enter', function(luigi) {
+                console.log("luigi has entered");
+                mvl.actions.createLuigi(false);
+            });
 
-    socket.on('partner move', function(playerPosition) {
-    //            console.log('Partner moved to ' + JSON.stringify(playerPosition));
-        players.opponent.pos = playerPosition.pos;
-        players.opponent.faceDir = playerPosition.faceDir;
-        players.opponent.runState = playerPosition.runState;
-        players.opponent.walkCycle = playerPosition.walkCycle;
-        players.opponent.velocity = playerPosition.velocity;
-        players.opponent.onGround = playerPosition.onGround;
-    });
+            mvl.socket.on('partner move', function(playerPosition) {
+            //            console.log('Partner moved to ' + JSON.stringify(playerPosition));
+                mvl.players.opponent.position = playerPosition.position;
+                mvl.players.opponent.faceDir = playerPosition.faceDir;
+                mvl.players.opponent.runState = playerPosition.runState;
+                mvl.players.opponent.walkCycle = playerPosition.walkCycle;
+                mvl.players.opponent.velocity = playerPosition.velocity;
+                mvl.players.opponent.onGround = playerPosition.onGround;
+            });
 
-    socket.on('partner bullets', function(bulletPositions) {
-    //            console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
-        players.opponent.bullets = [];
-        bulletPositions.forEach(function(bullet) {
-            var b = new Bullet(bullet.pos, bullet.direction);
-            players.opponent.bullets.push(b);
-        })
-    });
+            mvl.socket.on('partner bullets', function(bulletPositions) {
+            //            console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
+                mvl.players.opponent.bullets = [];
+                bulletPositions.forEach(function(bullet) {
+                    var b = new Bullet(bullet.position, bullet.direction);
+                    mvl.players.opponent.bullets.push(b);
+                })
+            });
 
-    socket.on('partner exit', function() {
-        console.log("Partner has left the game")
-        gameOver();
-    });
+            mvl.socket.on('partner exit', function() {
+                console.log("Partner has left the game")
+                mvl.actions.gameOver();
+            });
+        }
+    }
 }

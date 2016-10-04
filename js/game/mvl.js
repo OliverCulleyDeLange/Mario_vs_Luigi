@@ -24,78 +24,78 @@
  *  Do colision detection only in area around thing being checked.
  */
 
+mvl.game = {
+    main: function() {
+        if(!mvl.state.running) return;
 
-function main() {
-    if(!running) return;
-        
-    var now = Date.now();
-    dt = (now - lastTime) / 1000.0; // dt is number of seconds passed since last update
-//      dt = 0.05; // Use for debugging when you don't want massive DTs because of breakpoints
-    update();
-    render();
+        var now = Date.now();
+        dt = (now - mvl.state.lastTime) / 1000.0; // dt is number of seconds passed since last update
+    //      dt = 0.05; // Use for debugging when you don't want massive DTs because of breakpoints
+        mvl.game.update();
+        mvl.game.render();
 
-    lastTime = now;
-    requestAnimFrame(main);
-    //console.log("Game Frame");
-};
+        mvl.state.lastTime = now;
+        requestAnimFrame(mvl.game.main);
+        //console.log("Game Frame");
+    },
 
-function update() {
-    gameTime += dt;
+    update: function() {
+        mvl.state.gameTime += dt;
 
-    updatePlayer(players.me);
-    if (onlinePlay) {
-        players.me.emitPosition();
-        players.me.emitBullets();
-    }
-    if (twoPlayer && players.opponent ) {
-        updatePlayer(players.opponent)
-    }
-};
-
-function updatePlayer(player) {
-    player.setDefaultValues();
-    player.handleInput();
-    player.updateXVelocity();
-    player.updateYVelocity();
-    player.updatePosition();
-
-    player.checkBounds();
-    player.setWalkAnimation();
-
-    if(player.shoot && Date.now() - player.lastFire > 250) {
-        player.fireGun();
-    }
-    player.updateBullets();
-    player.updateStats();
-};
-
-
-function render() {
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if(!isGameOver) {
-        renderEntity(players.me);
-        renderEntities(players.me.bullets);
-
-        if (twoPlayer && players.opponent) {
-            renderEntity(players.opponent);
-            renderEntities(players.opponent.bullets)
+        mvl.game.updatePlayer(mvl.players.me);
+        if (mvl.state.onlinePlay) {
+            mvl.players.me.emitPosition();
+            mvl.players.me.emitBullets();
         }
+        if (mvl.state.twoPlayer && mvl.players.opponent ) {
+            mvl.game.updatePlayer(mvl.players.opponent)
+        }
+    },
 
-        renderEntities(cubes);
-    };
-};
+    updatePlayer: function(player) {
+        player.setDefaultValues();
+        player.handleInput();
+        player.updateXVelocity();
+        player.updateYVelocity();
+        player.updatePosition();
 
-function renderEntities(list) {
-    for(var i=0; i<list.length; i++) {
-        renderEntity(list[i]);
+        player.checkBounds();
+        player.setWalkAnimation();
+
+        if(player.shoot && Date.now() - player.lastFire > 250) {
+            player.fireGun();
+        }
+        player.updateBullets();
+        player.updateStats();
+    },
+
+    render: function() {
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if(!mvl.state.isGameOver) {
+            mvl.game.renderEntity(mvl.players.me);
+            mvl.game.renderEntities(mvl.players.me.bullets);
+
+            if (mvl.state.twoPlayer && mvl.players.opponent) {
+                mvl.game.renderEntity(mvl.players.opponent);
+                mvl.game.renderEntities(mvl.players.opponent.bullets)
+            }
+
+            mvl.game.renderEntities(mvl.map.tiles);
+        };
+    },
+
+    renderEntities: function(list) {
+        for(var i=0; i<list.length; i++) {
+            mvl.game.renderEntity(list[i]);
+        }
+    },
+
+    renderEntity: function(entity) {
+        ctx.save();
+        ctx.translate(entity.position.x, entity.position.y);
+        entity.render(ctx, entity.runState);
+        ctx.restore();
     }
-};
-
-function renderEntity(entity) {
-    ctx.save();
-    ctx.translate(entity.pos.x, entity.pos.y);
-    entity.sprite.render(ctx, entity.runState);
-    ctx.restore();
-};
+}
 
