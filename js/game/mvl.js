@@ -44,10 +44,15 @@ function update() {
 
     updatePlayer(players.me);
     if (onlinePlay && (players.me.velocity.x || players.me.velocity.y)) {
-        socket.emit('player move', players.me.pos);
+        socket.emit('player move', {
+            pos: players.me.pos,
+            faceDir: players.me.faceDir,
+            runState: players.me.runState,
+            walkCycle: players.me.walkCycle
+        });
     }
-    if (twoPlayer && players.opponent && !onlinePlay) {
-        updatePlayer(players.opponent)
+    if (twoPlayer && players.opponent ) {
+        updateOpponent(players.opponent)
     }
 };
 
@@ -65,6 +70,10 @@ function updatePlayer(player) {
         player.fireGun();
     }
     player.updateBullets();
+};
+
+function updateOpponent(player) {
+    // Don't need to do anything??
 };
 
 function render() {

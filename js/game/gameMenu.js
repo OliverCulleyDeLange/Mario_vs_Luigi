@@ -64,9 +64,12 @@ function setOnlinePlay() {
             console.log("luigi has entered");
             createLuigi(false);
         });
-        socket.on('partner move', function(newPos) {
-            console.log('Partner moved to ' + JSON.stringify(newPos));
-            players.opponent.pos = newPos;
+        socket.on('partner move', function(playerPosition) {
+            console.log('Partner moved to ' + JSON.stringify(playerPosition));
+            players.opponent.pos = playerPosition.pos;
+            players.opponent.faceDir = playerPosition.faceDir;
+            players.opponent.runState = playerPosition.runState;
+            players.opponent.walkCycle = playerPosition.walkCycle;
         });
         socket.on('partner bullets', function(bulletPositions) {
             console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
