@@ -206,7 +206,7 @@ function player(name, pos, keyMap, controlable) {
         
         var bulletPosition = { x: x + this.sprite.size[0] * this.faceDir, y:y };
         var bulletDirection = this.faceDir;
-        this.bullets.push(new bullet(bulletPosition , bulletDirection));
+        this.bullets.push(new Bullet(bulletPosition, bulletDirection));
         this.lastFire = Date.now();
     };
 
@@ -215,6 +215,10 @@ function player(name, pos, keyMap, controlable) {
             var bullet = this.bullets[i];
             bullet.move(this.bullets);
             bullet.doCollisionDetection(this.bullets);
+        }
+        if (this.bullets.length > 0 && this === players.me) {
+            var bullets = this.bullets.map(function(b) {return {  pos: b.pos, direction: b.dir }});
+            socket.emit('player bullets', bullets );
         }
     };
     

@@ -1,4 +1,4 @@
-function bullet(pos, dir) {
+function Bullet(pos, dir) {
     this.pos = pos;
     this.dir = dir;
     this.sprite = new Sprite('img/ML.png', {x:0,y: 0}, [8,4], 0);

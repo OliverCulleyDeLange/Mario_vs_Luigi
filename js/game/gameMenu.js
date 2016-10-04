@@ -68,6 +68,14 @@ function setOnlinePlay() {
             console.log('Partner moved to ' + JSON.stringify(newPos));
             players.opponent.pos = newPos;
         });
+        socket.on('partner bullets', function(bulletPositions) {
+            console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
+            players.opponent.bullets = [];
+            bulletPositions.forEach(function(bullet) {
+                var b = new Bullet(bullet.pos, bullet.direction);
+                players.opponent.bullets.push(b);
+            })
+        });
         socket.on('partner exit', function() {
             console.log("Partner has left the game")
             gameOver();

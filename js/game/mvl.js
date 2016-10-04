@@ -20,6 +20,7 @@
  *  Addition of two player online - Node.js?
  *  
  *  TODO:
+ *  Screen size scaling
  *  Do colision detection only in area around thing being checked.
  */
 

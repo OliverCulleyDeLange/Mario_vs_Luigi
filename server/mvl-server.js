@@ -65,6 +65,15 @@ io.on('connection', function(socket){
     // Send pair players location
     io.to(partner).emit('partner move', position)
   })
+
+  socket.on('player bullets', function(bullets) {
+    var playerId = socket.id;
+//    console.log(playerId + ': Player moved to position ' + JSON.stringify(position));
+    // Find paired game
+    var partner = gamePairs[playerId]
+    // Send pair players location
+    io.to(partner).emit('partner bullets', bullets)
+  })
 });
 
 http.listen(3000, function(){
