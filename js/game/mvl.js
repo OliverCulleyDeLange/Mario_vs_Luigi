@@ -43,16 +43,12 @@ function update() {
     gameTime += dt;
 
     updatePlayer(players.me);
-    if (onlinePlay && (players.me.velocity.x || players.me.velocity.y)) {
-        socket.emit('player move', {
-            pos: players.me.pos,
-            faceDir: players.me.faceDir,
-            runState: players.me.runState,
-            walkCycle: players.me.walkCycle
-        });
+    if (onlinePlay) {
+        players.me.emitPosition();
+        players.me.emitBullets();
     }
     if (twoPlayer && players.opponent ) {
-        updateOpponent(players.opponent)
+        updatePlayer(players.opponent)
     }
 };
 
@@ -72,9 +68,6 @@ function updatePlayer(player) {
     player.updateBullets();
 };
 
-function updateOpponent(player) {
-    // Don't need to do anything??
-};
 
 function render() {
     ctx.fillStyle = terrainPattern;

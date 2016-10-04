@@ -46,7 +46,7 @@ function player(name, pos, keyMap, controlable) {
         SKIDRIGHT : 10,
         JUMPRIGHT : 11
     };
-        
+
     this.kill = function() {
         console.log("Killed");
         this.lives--;
@@ -164,6 +164,17 @@ function player(name, pos, keyMap, controlable) {
             }
         }
     };
+
+    this.emitPosition = function() {
+        socket.emit('player move', {
+            pos: this.pos,
+            faceDir: this.faceDir,
+            runState: this.runState,
+            walkCycle: this.walkCycle,
+            velocity: this.velocity,
+            onGround: this.onGround
+        });
+    }
     
     this.stoodOnTopOf = function(cube) {
         var bottomYCoordinateofPlayer = this.pos.y + this.sprite.size[1];
@@ -216,10 +227,11 @@ function player(name, pos, keyMap, controlable) {
             bullet.move(this.bullets);
             bullet.doCollisionDetection(this.bullets);
         }
-        if (this.bullets.length > 0 && this === players.me) {
-            var bullets = this.bullets.map(function(b) {return {  pos: b.pos, direction: b.dir }});
-            socket.emit('player bullets', bullets );
-        }
+    };
+
+    this.emitBullets = function() {
+        var bullets = this.bullets.map(function(b) {return {  pos: b.pos, direction: b.dir }});
+        socket.emit('player bullets', bullets );
     };
     
     this.checkBounds = function () {

@@ -70,6 +70,8 @@ function setOnlinePlay() {
             players.opponent.faceDir = playerPosition.faceDir;
             players.opponent.runState = playerPosition.runState;
             players.opponent.walkCycle = playerPosition.walkCycle;
+            players.opponent.velocity = playerPosition.velocity;
+            players.opponent.onGround = playerPosition.onGround;
         });
         socket.on('partner bullets', function(bulletPositions) {
             console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
