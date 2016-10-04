@@ -24,6 +24,7 @@ function joinGame(evt) {
 
 function begin() {
     drawMap();
+    isGameOver = false;
     running = true;
     hideGameMenu();
     lastTime = Date.now();
@@ -40,11 +41,7 @@ function reset() {
     document.getElementById('game-over').style.display = 'none';
     document.getElementById('game-over-overlay').style.display = 'none';
     //document.getElementById('game-setup').style.display = 'none';
-    isGameOver = false;
-    gameTime = 0;
-
-    mario.pos = {x: canvas.width * 0.1, y: canvas.height / 3};
-    if(twoPlayer) luigi.pos = {x: canvas.width * 0.9, y: canvas.height / 3};
+    showGameMenu()
 };
 
 function resume() {

@@ -1,3 +1,7 @@
+function showGameMenu() {
+    document.getElementById('game-setup').style.display = "block";
+};
+
 function hideGameMenu() {
     document.getElementById('game-setup').style.display = "none";
 };
@@ -54,7 +58,7 @@ function setOnlinePlay() {
     setTwoPlayer();
     showWaitingRooms();
     if (typeof socket === 'undefined' || !socket) {
-        socket = io('localhost:3000');
+        socket = io('https://mvl.herokuapp.com');
 
         socket.on('available rooms', function(rooms) {
             console.log("got available rooms:" + rooms);
@@ -65,7 +69,7 @@ function setOnlinePlay() {
             createLuigi(false);
         });
         socket.on('partner move', function(playerPosition) {
-            console.log('Partner moved to ' + JSON.stringify(playerPosition));
+//            console.log('Partner moved to ' + JSON.stringify(playerPosition));
             players.opponent.pos = playerPosition.pos;
             players.opponent.faceDir = playerPosition.faceDir;
             players.opponent.runState = playerPosition.runState;
@@ -74,7 +78,7 @@ function setOnlinePlay() {
             players.opponent.onGround = playerPosition.onGround;
         });
         socket.on('partner bullets', function(bulletPositions) {
-            console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
+//            console.log('Partner is shooting ' + JSON.stringify(bulletPositions));
             players.opponent.bullets = [];
             bulletPositions.forEach(function(bullet) {
                 var b = new Bullet(bullet.pos, bullet.direction);
