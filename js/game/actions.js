@@ -18,7 +18,8 @@ mvl.actions = {
     joinGame: function(evt) {
         var gameRoom = evt.target.getAttribute('data-room');
         var gameHeight = evt.target.getAttribute('game-height');
-//        mvl.canvas.height = gameHeight;//FIXME
+        console.log('Matching game height of ' + gameHeight)
+        createCanvas(parseInt(gameHeight));
         console.log("Joining game " + gameRoom);
         mvl.players.me = new Player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, mvl.keyMaps.luigi, true);
         mvl.players.opponent = new Player("mario", {x: innerWidth*0.1, y: innerHeight*0.25}, mvl.keyMaps.mario, false);
