@@ -1,10 +1,10 @@
 // Everything starts here!
 var createCanvas = function() {
-    canvas = document.createElement("canvas");
-    ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    document.body.appendChild(canvas);
+    mvl.canvas = document.createElement("canvas");
+    ctx = mvl.canvas.getContext("2d");
+    mvl.canvas.width = window.innerWidth;
+    mvl.canvas.height = window.innerHeight;
+    document.body.appendChild(mvl.canvas);
     ctx.fillStyle = '#333';
 }();
 

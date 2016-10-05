@@ -1,26 +1,10 @@
 /*
- *  MvL
- *  Two player 2D Mario influenced shooter
- *  Basic arrow key interaction (Up (Jump), Left, Right, Down (Drop))
- *  Control character on screen - Kill enemies and other player if 2 player
- *  Score points for kills, more points for killing opponent 
- *  Wider than screen maps (Bigger screens at advantage)
- *  Health Bar | Sheild Bar | Score board
- *  
- *  Phase 2: 
- *  Add Map with scrolling
- *  
- *  Phase 3:
- *  Second local player addition - Allows two players to play on one machine
- *  WASD & Shift & |\ & Z = Player 1
- *  Arrows & ,< & .> & /? = Player 2
- *  Bullet collision detection & death animation
- *  
- *  Phase 4:
- *  Addition of two player online - Node.js?
- *  
  *  TODO:
  *  Screen size scaling
+ *  Enemies
+ *  Score points for kills, more points for killing opponent 
+ *  Maps - Fixed height, very wide, scrolling based on position
+ *  Bullet collision detection & death animation
  *  Do colision detection only in area around thing being checked.
  */
 
@@ -70,7 +54,7 @@ mvl.game = {
     },
 
     render: function() {
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, mvl.canvas.width, mvl.canvas.height);
 
         if(!mvl.state.isGameOver) {
             mvl.game.renderEntity(mvl.players.me);

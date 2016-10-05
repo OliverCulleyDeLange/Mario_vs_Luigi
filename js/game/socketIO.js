@@ -5,7 +5,7 @@ mvl.socketio = {
             mvl.socket = io('https://mvl.herokuapp.com');
 
             mvl.socket.on('available rooms', function(rooms) {
-                console.log("got available rooms:" + rooms);
+                console.log("got available rooms:" + JSON.stringify(rooms));
                 mvl.menu.setWaitingRooms(rooms);
             });
 

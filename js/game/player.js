@@ -233,7 +233,7 @@ Player.prototype.updateBullets = function() {
         bullet.move();
 
         //Remove if off screen
-        if(bullet.position.x > canvas.width || bullet.position.x < 0) {
+        if(bullet.position.x > mvl.canvas.width || bullet.position.x < 0) {
             this.bullets.splice(i, 1);
         }
         // Bullet -> Opponent collisions
@@ -263,15 +263,15 @@ Player.prototype.checkBounds = function () {
     if(this.position.x < 0) {
         this.position.x = 0;
     }
-    else if(this.position.x > canvas.width - this.size[0]) {
-        this.position.x = canvas.width - this.size[0];
+    else if(this.position.x > mvl.canvas.width - this.size[0]) {
+        this.position.x = mvl.canvas.width - this.size[0];
     }
 
     if(this.position.y < 0) {
         this.position.y = 0;
     }
-    else if(this.position.y >= canvas.height - this.size[1]-50) {
-        this.position.y = canvas.height - this.size[1]-50;
+    else if(this.position.y >= (mvl.canvas.height - this.size[1]) * 0.9) {
+        this.position.y = (mvl.canvas.height - this.size[1]) * 0.9;
         this.onGround = true;
     }
 };

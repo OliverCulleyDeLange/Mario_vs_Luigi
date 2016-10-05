@@ -41,6 +41,11 @@ canvas {
     text-align: center;
 }
 
+#game-name {
+    display: none;
+    margin: 5px auto;
+}
+
 #game-over h1 {
     font-size: 3em;
     font-family: sans-serif;

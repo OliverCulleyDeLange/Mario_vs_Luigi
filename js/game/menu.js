@@ -15,6 +15,14 @@ mvl.menu = {
         document.getElementById('waiting-room').style.display = "none";
     },
 
+    showGameNameInput: function() {
+        document.getElementById('game-name').style.display = 'block';
+    },
+
+    hideGameNameInput: function() {
+        document.getElementById('game-name').style.display = 'none';
+    },
+
     showGameOver: function() {
         document.getElementById('game-over').style.display = 'block';
     },
@@ -42,13 +50,14 @@ mvl.menu = {
     setWaitingRooms: function(rooms) {
         //TODO got to be a nicer way of doing this!
         var html = document.createElement('div');
-        rooms.forEach(function(room) {
+        for (var roomID in rooms) {
+            var room = rooms[roomID];
             var btn = document.createElement('button');
             btn.className += btn.className ? ' button-link' : 'button-link';
-            btn.setAttribute('data-room', room);
-            btn.innerText = room;
+            btn.setAttribute('data-room', roomID);
+            btn.innerText = room.name;
             html.appendChild(btn);
-        })
+        }
         document.getElementById('available-games').innerHTML = html.outerHTML;
         var gameButtons = document.getElementById('available-games').firstChild.children;
         for (var i = gameButtons.length - 1; i >= 0; i--) {
@@ -74,6 +83,7 @@ mvl.menu = {
         document.getElementById('onlinePlay').className = 'button-link';
         document.getElementById('play').innerHTML = "Play";
         mvl.menu.hideWaitingRooms();
+        mvl.menu.hideGameNameInput();
         mvl.state.onlinePlay = false;
     },
     
@@ -81,6 +91,7 @@ mvl.menu = {
         document.getElementById('onlinePlay').className += ' button-selected';
         document.getElementById('localPlay').className = 'button-link';
         mvl.menu.setTwoPlayer();
+        mvl.menu.showGameNameInput();
         mvl.menu.showWaitingRooms();
         mvl.socketio.init();
         mvl.socket.emit('get rooms');
