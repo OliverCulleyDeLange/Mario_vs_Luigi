@@ -14,6 +14,30 @@ mvl.menu = {
     hideWaitingRooms: function() {
         document.getElementById('waiting-room').style.display = "none";
     },
+
+    showGameOver: function() {
+        document.getElementById('game-over').style.display = 'block';
+    },
+
+    hideGameOver: function() {
+        document.getElementById('game-over').style.display = 'none';
+    },
+
+    showGameOverOverlay: function() {
+        document.getElementById('game-over-overlay').style.display = 'block';
+    },
+
+    hideGameOverOverlay: function() {
+        document.getElementById('game-over-overlay').style.display = 'none';
+    },
+
+    showPause: function() {
+        document.getElementById('resume').style.display = "block";
+    },
+
+    hidePause: function() {
+        document.getElementById('resume').style.display = "none";
+    },
     
     setWaitingRooms: function(rooms) {
         //TODO got to be a nicer way of doing this!

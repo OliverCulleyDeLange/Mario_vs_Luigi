@@ -11,7 +11,7 @@ mvl.socketio = {
 
             mvl.socket.on('luigi enter', function(luigi) {
                 console.log("luigi has entered");
-                mvl.actions.createLuigi(false);
+                mvl.players.opponent = new Player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, mvl.keyMaps.luigi, false);
             });
 
             mvl.socket.on('partner move', function(playerPosition) {

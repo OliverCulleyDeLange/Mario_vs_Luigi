@@ -230,8 +230,26 @@ Player.prototype.fireGun = function() {
 Player.prototype.updateBullets = function() {
     for(var i=0; i < this.bullets.length; i++) {
         var bullet = this.bullets[i];
-        bullet.move(this.bullets);
-        bullet.doCollisionDetection(this.bullets);
+        bullet.move();
+
+        //Remove if off screen
+        if(bullet.position.x > canvas.width || bullet.position.x < 0) {
+            this.bullets.splice(i, 1);
+        }
+        // Bullet -> Opponent collisions
+        if (mvl.state.twoPlayer && mvl.players.opponent) {
+            if(mvl.boxCollides(mvl.players.opponent.position, mvl.players.opponent.size, bullet.position, bullet.size)) {
+                this.bullets.splice(i, 1);
+                mvl.players.opponent.kill();
+            }
+        }
+        // Bullet -> Map collisions
+        for (var j=0; j < mvl.map.tiles.length; j++) {
+            var tile = mvl.map.tiles[j];
+            if(mvl.boxCollides(tile.position, tile.size, this.position, this.size)) {
+                this.bullets.splice(i, 1);
+            }
+        }
     }
 };
 
