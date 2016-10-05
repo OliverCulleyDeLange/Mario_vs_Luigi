@@ -37,6 +37,11 @@ mvl.socketio = {
                 console.log("Partner has left the game")
                 mvl.actions.gameOver();
             });
+
+            mvl.socket.on('die', function() {
+                console.log("You got shot, oops.")
+                mvl.players.me.kill();
+            });
         }
     }
 }

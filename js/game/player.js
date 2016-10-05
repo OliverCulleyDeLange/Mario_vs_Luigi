@@ -241,6 +241,7 @@ Player.prototype.updateBullets = function() {
             if(mvl.boxCollides(mvl.players.opponent.position, mvl.players.opponent.size, bullet.position, bullet.size)) {
                 this.bullets.splice(i, 1);
                 mvl.players.opponent.kill();
+                mvl.socket.emit('kill');
             }
         }
         // Bullet -> Map collisions
