@@ -39,7 +39,7 @@ resources.onReady(function setupButtonEventListeners() {
     // if(document.getElementById('game-setup').style.display == "none") {
     //    running = false;
     //    document.getElementById('resume').style.display = "block";
-    //    document.getElementById('game-over-overlay').style.display = "block";
+    //    document.getElementById('overlay-tint').style.display = "block";
     // }
     // });
 });

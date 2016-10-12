@@ -19,7 +19,7 @@ canvas {
     width: 100%;
 }
 
-#game-over, #game-over-overlay {
+#game-over, #overlay-tint {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -31,7 +31,7 @@ canvas {
     display: none;
 }
 
-#game-over-overlay {
+#overlay-tint {
     background-color: black;
     opacity: .5;
 }
@@ -126,4 +126,47 @@ canvas {
     display: block;
     z-index: 9;
     font-size: 12px;
+}
+
+#keymap {
+    z-index: 3;
+    width: 340px;
+    height: 150px;
+    margin: auto;}
+
+#keymap div {
+    width: 150px;
+    height: 150px;
+    margin: 10px;
+    float: left;
+}
+#keymap input {
+    width: 40px;
+    position: absolute;
+    font-size: 12px;
+    padding: 2px;
+    text-align: center;
+}
+#keymap .keyJump {
+    left: 50px;
+}
+#keymap .keyLeft {
+    left: 0px;
+    top: 25px;
+}
+#keymap .keyRight {
+    left: 100px;
+    top: 25px;
+}
+#keymap .keyDown {
+    left: 50px;
+    top: 50px;
+}
+#keymap .keyShoot {
+    left: 50px;
+    top: 25px;
+}
+
+.absolute {
+    position: absolute;
 }

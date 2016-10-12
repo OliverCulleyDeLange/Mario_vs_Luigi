@@ -32,11 +32,11 @@ mvl.menu = {
     },
 
     showGameOverOverlay: function() {
-        document.getElementById('game-over-overlay').style.display = 'block';
+        document.getElementById('overlay-tint').style.display = 'block';
     },
 
     hideGameOverOverlay: function() {
-        document.getElementById('game-over-overlay').style.display = 'none';
+        document.getElementById('overlay-tint').style.display = 'none';
     },
 
     showPause: function() {

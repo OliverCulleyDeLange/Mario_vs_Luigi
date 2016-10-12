@@ -1,6 +1,6 @@
 mvl.actions = {
     startGame: function() {
-        mvl.players.me = new Player("mario", {x: innerWidth*0.1, y: innerHeight*0.25}, mvl.keyMaps.mario, true);
+        mvl.players.me = new Player("mario", {x: innerWidth*0.1, y: innerHeight*0.25}, mvl.keyMaps.mario(), true);
 
         if (mvl.state.onlinePlay) {
             console.log('mario start - telling server an open game has begun');
@@ -9,7 +9,7 @@ mvl.actions = {
         }
     
         if (!mvl.state.onlinePlay && mvl.state.twoPlayer) {
-            mvl.players.opponent = new Player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, mvl.keyMaps.luigi, true);
+            mvl.players.opponent = new Player("luigi", {x: innerWidth*0.9, y: innerHeight*0.25}, mvl.keyMaps.luigi(), true);
         }
     
         mvl.actions.begin();

@@ -12,22 +12,22 @@ mvl.state = {
     isGameOver: false
 }
 mvl.keyMaps = {
-    mario: {
-        up: 'W',
-        left: 'A',
-        down: 'S',
-        right: 'D',
-        shoot: 'BSLASH',
-        sheild:'SHIFT',
-        pickup: 'Z'
+    mario: function() {
+       return {
+            up: document.getElementById('mJump').value || document.getElementById('mJump').placeholder,
+            left: document.getElementById('mLeft').value || document.getElementById('mLeft').placeholder,
+            down: document.getElementById('mDown').value || document.getElementById('mDown').placeholder,
+            right: document.getElementById('mRight').value || document.getElementById('mRight').placeholder,
+            shoot: document.getElementById('mShoot').value || document.getElementById('mShoot').placeholder,
+       }
     },
-    luigi: {
-            up: 'UP',
-            left: 'LEFT',
-            down:'DOWN',
-            right: 'RIGHT',
-            shoot: 'PERIOD',
-            sheild: 'COMMA',
-            pickup: 'FSLASH'
+    luigi: function() {
+        return {
+            up: document.getElementById('lJump').value || document.getElementById('lJump').placeholder,
+            left: document.getElementById('lLeft').value || document.getElementById('lLeft').placeholder,
+            down: document.getElementById('lDown').value || document.getElementById('lDown').placeholder,
+            right: document.getElementById('lRight').value || document.getElementById('lRight').placeholder,
+            shoot: document.getElementById('lShoot').value || document.getElementById('lShoot').placeholder,
+        }
     }
 }

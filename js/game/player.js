@@ -115,14 +115,8 @@ Player.prototype.handleInput = function () {
             this.lastPressedLeftOrRight = 'right';
         }
     }
-    if (input.isDown(this.keyMap.sheild)) {
-        this.sheild = true;
-    }
     if (input.isDown(this.keyMap.shoot)) {
         this.shoot = true;
-    }
-    if (input.isDown(this.keyMap.pickup)) {
-        this.pickup = true;
     }
 //        if (currentlyPressed) console.log(currentlyPressed);
 };
