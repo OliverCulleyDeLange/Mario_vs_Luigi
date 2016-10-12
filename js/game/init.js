@@ -1,13 +1,13 @@
 // Everything starts here!
-var createCanvas = function(canvasHeight) {
+var createCanvas = function(canvasHeight, canvasWidth) {
     mvl.canvas = document.createElement("canvas");
     ctx = mvl.canvas.getContext("2d");
-    mvl.canvas.width = window.innerWidth;
+    mvl.canvas.width = canvasWidth;
     mvl.canvas.height = canvasHeight;
     document.body.appendChild(mvl.canvas);
     ctx.fillStyle = '#333';
 };
-createCanvas(window.innerHeight);
+createCanvas(window.innerHeight, window.innerWidth);
 
 // A cross-browser requestAnimationFrame
 // See https://hacks.mozilla.org/2011/08/animating-with-javascript-from-setinterval-to-requestanimationframe/

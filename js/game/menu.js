@@ -56,6 +56,7 @@ mvl.menu = {
             btn.className += btn.className ? ' button-link' : 'button-link';
             btn.setAttribute('data-room', roomID);
             btn.setAttribute('game-height', room.height);
+            btn.setAttribute('game-width', room.width);
             btn.innerText = room.name;
             html.appendChild(btn);
         }
