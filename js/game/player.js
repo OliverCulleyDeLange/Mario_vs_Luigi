@@ -236,12 +236,12 @@ Player.prototype.updateBullets = function() {
         if(bullet.position.x > mvl.canvas.width || bullet.position.x < 0) {
             this.bullets.splice(i, 1);
         }
-        // Bullet -> Opponent collisions
-        if (mvl.state.twoPlayer && mvl.players.opponent) {
-            if(mvl.boxCollides(mvl.players.opponent.position, mvl.players.opponent.size, bullet.position, bullet.size)) {
+        // Bullet -> Opponent collisions (Online play)
+        if (mvl.state.twoPlayer && this.getOpponent()) {
+            if(mvl.boxCollides(this.getOpponent().position, this.getOpponent().size, bullet.position, bullet.size)) {
                 this.bullets.splice(i, 1);
-                mvl.players.opponent.kill();
-                mvl.socket.emit('kill');
+                this.getOpponent().kill();
+                if (mvl.state.onlinePlay) mvl.socket.emit('kill');
             }
         }
         // Bullet -> Map collisions
@@ -253,6 +253,17 @@ Player.prototype.updateBullets = function() {
         }
     }
 };
+
+Player.prototype.getOpponent = function() {
+    // TODO this is ugly, make better.
+    if (this.name == "mario") {
+        return mvl.players.opponent;
+    } else if (!mvl.state.onlinePlay) {
+        return mvl.players.me;
+    } else {
+        return mvl.players.opponent;
+    }
+}
 
 Player.prototype.emitBullets = function() {
     var bullets = this.bullets.map(function(b) {return {  position: b.position, direction: b.dir }});

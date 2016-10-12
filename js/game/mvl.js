@@ -1,6 +1,6 @@
 /*
  *  TODO:
- *  Screen size scaling
+ *  Screen size scaling - Allow opponent to go off screen if they have bigger monitor.
  *  Enemies
  *  Score points for kills, more points for killing opponent 
  *  Maps - Fixed height, very wide, scrolling based on position
