@@ -4,46 +4,45 @@
     function setKey(event, status) {
         var code = event.keyCode;
         var key;
-        //console.log(code);
+//        console.log(code);
         switch(code) {
-        //Shift (16) - Sheild | |\ (192) - Pick Up Item | Z (90) - Fire weapon
-        //, (188)  Sheild | . (190) - Pick up item | / (191) - Fire weapon
         // Player 1 controls
         case 37:
-            key = 'LEFT'; break;
+            key = 'left'; break;
         case 38:
-            key = 'UP'; break;
+            key = 'up'; break;
         case 39:
-            key = 'RIGHT'; break;
+            key = 'right'; break;
         case 40:
-            key = 'DOWN'; break;
+            key = 'down'; break;
         case 188:
-            key = 'COMMA'; break;
+            key = ','; break;
         case 190:
-            key = 'PERIOD'; break;
+            key = '.'; break;
         case 191:
-            key = 'FSLASH'; break;
+            key = '/'; break;
         // Player 2
         case 65:
-            key = 'A'; break;
+            key = 'a'; break;
         case 87:
-            key = 'W'; break;
+            key = 'w'; break;
         case 68:
-            key = 'D'; break;
+            key = 'd'; break;
         case 83:
-            key = 'S'; break;
+            key = 's'; break;
         case 16:
-            key = 'SHIFT'; break;
+            key = 'shift'; break;
         case 220:
-            key = 'BSLASH'; break;
+            key = '\\'; break;
         case 90:
-            key = 'Z'; break;
+            key = 'z'; break;
         //Default
         default:
             // Convert ASCII codes to letters
-            key = String.fromCharCode(code);
+            key = String.fromCharCode(code).toLowerCase();
         }
 
+//        console.log("key=" + key)
         pressedKeys[key] = status;
     }
 
@@ -63,7 +62,7 @@
 
     window.input = {
         isDown: function(key) {
-            return pressedKeys[key.toUpperCase()];
+            return pressedKeys[key];
         }
     };
 })();

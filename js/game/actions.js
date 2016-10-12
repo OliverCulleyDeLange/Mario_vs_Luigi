@@ -22,8 +22,8 @@ mvl.actions = {
         console.log('Matching game size of ' + gameHeight + " x " + gameWidth)
         createCanvas(parseInt(gameHeight), parseInt(gameWidth));
         console.log("Joining game " + gameRoom);
-        mvl.players.me = new Player("luigi", {x: gameWidth*0.9, y: gameHeight*0.25}, mvl.keyMaps.luigi, true);
-        mvl.players.opponent = new Player("mario", {x: gameWidth*0.1, y: gameHeight*0.25}, mvl.keyMaps.mario, false);
+        mvl.players.me = new Player("luigi", {x: gameWidth*0.9, y: gameHeight*0.25}, mvl.keyMaps.luigi(), true);
+        mvl.players.opponent = new Player("mario", {x: gameWidth*0.1, y: gameHeight*0.25}, mvl.keyMaps.mario(), false);
         mvl.socket.emit('luigi join', gameRoom);
     
         mvl.actions.begin();
